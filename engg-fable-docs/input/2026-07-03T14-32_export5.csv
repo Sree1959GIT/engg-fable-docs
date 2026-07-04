@@ -1,0 +1,12 @@
+﻿,Reference_IDs,Make,Model,Part_Number,Type,Description,Qty
+0,U2,Infineon,IMC300A,IMC300A,Power Management IC,"Power Management IC
+<|im_end|>",1
+1,C1,Murata,GRM31CR71E106KA12,GRM31CR71E106KA12,Capacitor,"Multilayer Ceramic Capacitor
+<|im_end|>",1
+2,CON1,Phoenix Contact,MSTBVA 2.5/2-G,MSTBVA 2.5/2-G,Terminal Block,"Terminal Block, 2.5 mm² pitch, 2-position
+<|im_end|>",1
+3,U3,STMicroelectronics,STM32G474,STM32G474,Microcontroller,"32-bit ARM Cortex-M4F Microcontroller
+<|im_end|>",1
+4,U1,Texas Instruments,BQ76952,BQ76952,IC,"Power Management IC, Battery Management",1
+5,D1,Vishay,SS34,SS34,Resistor,"0.22 Ohm, 1W<|im_end|>",1
+6,"R1, R2",Yageo,RC0402FR-0710KL,RC0402FR-0710KL,Resistor,"0710kOhm, 0402 package",2
