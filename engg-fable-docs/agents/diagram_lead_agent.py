@@ -6,7 +6,19 @@ Design decisions (see IMPROVEMENTS.md):
 - Components are drawn as IC-style pin tables (HTML-like labels) with one PORT
   per pin. Edges attach to pin cells on the node boundary (tailport/headport),
   which is what eliminates lines passing through blocks.
-- splines=ortho + generous nodesep/ranksep gives Manhattan routing around nodes.
+- splines=polyline for wiring sheets: Graphviz's ortho router IGNORES ports
+  (edges get spread evenly along the node side instead of attaching at their
+  pin cell — the root cause of wires entering blocks at the wrong row or
+  through the bottom border). polyline honors ports exactly, so every wire
+  starts and ends at its true pin. The system block diagram (no pin ports)
+  keeps splines=ortho for the Manhattan look.
+- sep/esep widen the router's clearance margin so wires keep distance from
+  block borders instead of hugging them, and outputorder=edgesfirst paints
+  nodes on top of edges so no wire can ever be drawn across a component block.
+- Feedback signals (target left of source in the left-to-right layout, e.g.
+  SPI_MISO, DRV_FAULT) are emitted reversed with dir=back: layout ranks stay
+  strictly left-to-right, so the orthogonal router never wraps a return wire
+  over the top of the blocks.
 - Signal names are drawn as edge xlabels colored by signal class
   (red=power, blue=data, green=control, purple=motor — master.md §6.1).
 - Every sheet gets an IEC-style title block (title / doc no / rev / date) and
@@ -122,12 +134,29 @@ class DiagramLeadAgent:
 
         classes_used = sorted({classify_signal(s) for s in connections["Signal_Name"]})
 
+        # Dominant flow direction per component pair. A minority-direction
+        # edge (e.g. the single SPI_MISO return against three SPI outputs) is
+        # a feedback signal: drawing it as-is makes Graphviz route it around /
+        # over the blocks. We emit it reversed with dir=back instead, so the
+        # layout stays strictly left-to-right and the arrowhead still points
+        # at the true target.
+        pair_count: Dict[tuple, int] = {}
+        for _, r in connections.iterrows():
+            key = (str(r["Component_ID"]), str(r["Target_ID"]))
+            pair_count[key] = pair_count.get(key, 0) + 1
+
+        def _is_feedback(a: str, b: str) -> bool:
+            return pair_count.get((b, a), 0) > pair_count.get((a, b), 0)
+
         lines = [
             f"digraph {_safe_id(subsystem)} {{",
             "  rankdir=LR;",
-            "  splines=ortho;",
-            "  nodesep=0.7;",
-            "  ranksep=1.4;",
+            "  splines=polyline;",  # NOT ortho: ortho ignores pin ports (see module docstring)
+            "  nodesep=0.9;",
+            "  ranksep=1.8;",
+            '  sep="+24";',    # clearance the router keeps around nodes
+            '  esep="+16";',   # clearance around edges (must be < sep)
+            "  outputorder=edgesfirst;",  # nodes drawn over edges: wires can never cross a block
             "  concentrate=false;",
             '  fontname="Helvetica";',
             f"  label={_title_block(subsystem.replace('_', ' ') + ' — Wiring Diagram', subsystem)};",
@@ -155,18 +184,24 @@ class DiagramLeadAgent:
 
         lines.append("")
         for _, r in connections.iterrows():
-            src, tgt = _safe_id(r["Component_ID"]), _safe_id(r["Target_ID"])
+            src_raw, tgt_raw = str(r["Component_ID"]), str(r["Target_ID"])
+            src, tgt = _safe_id(src_raw), _safe_id(tgt_raw)
             sp, tp = _port_id(str(r["Source_Pin"])), _port_id(str(r["Target_Pin"]))
             sig = str(r["Signal_Name"])
             cls = classify_signal(sig)
             color = SIGNAL_CLASSES[cls]["color"]
             pw = "2.2" if cls in ("power", "motor") else "1.3"
             style = "dashed" if cls == "ground" else "solid"
-            lines.append(
-                f'  {src}:{sp}:e -> {tgt}:{tp}:w '
-                f'[xlabel=<<FONT COLOR="{color}" POINT-SIZE="8">{html.escape(sig)}</FONT>>, '
-                f'color="{color}", penwidth={pw}, style="{style}"];'
+            attrs = (
+                f'xlabel=<<FONT COLOR="{color}" POINT-SIZE="8">{html.escape(sig)}</FONT>>, '
+                f'color="{color}", penwidth={pw}, style="{style}"'
             )
+            if _is_feedback(src_raw, tgt_raw):
+                # Reversed emission: layout sees target→source (forward), the
+                # arrowhead is drawn at the tail — i.e. still at the true target.
+                lines.append(f"  {tgt}:{tp}:e -> {src}:{sp}:w [dir=back, {attrs}];")
+            else:
+                lines.append(f"  {src}:{sp}:e -> {tgt}:{tp}:w [{attrs}];")
 
         lines.append("}")
         return "\n".join(lines)
@@ -202,7 +237,10 @@ class DiagramLeadAgent:
             "  rankdir=LR;",
             "  splines=ortho;",
             "  nodesep=1.0;",
-            "  ranksep=1.6;",
+            "  ranksep=1.8;",
+            '  sep="+24";',
+            '  esep="+16";',
+            "  outputorder=edgesfirst;",
             '  fontname="Helvetica";',
             f"  label={_title_block(sys_name.replace('_', ' ') + ' — System Block Diagram', 'System')};",
             "  labelloc=b;",
