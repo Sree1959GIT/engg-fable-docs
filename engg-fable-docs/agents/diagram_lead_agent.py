@@ -187,7 +187,16 @@ class DiagramLeadAgent:
             ids = set(g["Component_ID"].astype(str)) | set(g["Target_ID"].astype(str))
             sub_components[str(sub)] = ids
 
-        subs = list(sub_components)
+        # Order sub-modules by signal flow (power entry -> control -> actuation),
+        # matching CAD block-diagram convention (numbered stages left to right).
+        def _flow_rank(sub: str) -> int:
+            g = df_conn[df_conn["Subsystem_Name"].astype(str) == sub]
+            classes = [classify_signal(str(s)) for s in g["Signal_Name"]]
+            dominant = max(set(classes), key=classes.count) if classes else "other"
+            return {"power": 0, "ground": 0, "data": 1, "control": 1,
+                    "analog": 2, "motor": 3}.get(dominant, 2)
+
+        subs = sorted(sub_components, key=_flow_rank)
         lines = [
             "digraph System_Overview {",
             "  rankdir=LR;",
@@ -202,7 +211,7 @@ class DiagramLeadAgent:
             "",
         ]
 
-        for sub in subs:
+        for n, sub in enumerate(subs, start=1):
             comp_rows = "".join(
                 f'<TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">{html.escape(c)} — '
                 f'{html.escape(registry.get(c, {}).get("type", ""))}</FONT></TD></TR>'
@@ -210,7 +219,7 @@ class DiagramLeadAgent:
             )
             lbl = ('<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">'
                    f'<TR><TD BGCOLOR="#1F4E79"><FONT COLOR="white" POINT-SIZE="12">'
-                   f'<B>{html.escape(str(sub).replace("_", " "))}</B></FONT></TD></TR>'
+                   f'<B>{n}. {html.escape(str(sub).replace("_", " "))}</B></FONT></TD></TR>'
                    + comp_rows + "</TABLE>>")
             lines.append(f"  {_safe_id(sub)} [label={lbl}];")
 

@@ -47,4 +47,32 @@ def generate_draft_bom(df: pd.DataFrame) -> pd.DataFrame:
     bom['Part_Number'] = pns
     bom['Type'] = typs
     bom['Description'] = descs
-    return bom[BOM_COLUMNS]
+    bom = bom[BOM_COLUMNS]
+
+    # Curation: components that only ever appear as a Target_ID carry no
+    # Make/Model in the connectivity rows and would otherwise be missing
+    # from the BOM (e.g. the motor or an output connector). Add them with
+    # what can be inferred, flagged for user confirmation.
+    from src.component_registry import build_component_registry
+    registry = build_component_registry(df)
+    covered = set()
+    for r in bom['Reference_IDs']:
+        covered.update(x.strip() for x in str(r).split(','))
+    extra = []
+    for cid, info in sorted(registry.items()):
+        if cid in covered or info.get('is_rail'):
+            continue
+        extra.append({
+            'Reference_IDs': cid,
+            'Make': info.get('make') or 'TBD',
+            'Model': info.get('model') or 'TBD',
+            'Part_Number': info.get('model') or 'TBD',
+            'Type': info.get('type', 'Component'),
+            'Description': (info.get('description') or
+                            f"{info.get('type', 'Component')} inferred from connectivity "
+                            f"context — confirm part selection."),
+            'Qty': 1,
+        })
+    if extra:
+        bom = pd.concat([bom, pd.DataFrame(extra)], ignore_index=True)
+    return bom

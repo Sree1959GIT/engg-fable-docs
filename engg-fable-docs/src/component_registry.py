@@ -269,15 +269,19 @@ def build_component_registry(df_conn: pd.DataFrame,
     # Pass 3: BOM overrides/fills via Reference_IDs
     bom_type_by_id: Dict[str, str] = {}
     if df_bom is not None and not df_bom.empty and "Reference_IDs" in df_bom.columns:
+        def _clean(v) -> str:
+            v = str(v or "").strip()
+            return "" if v.upper() in ("TBD", "UNKNOWN", "NAN", "NONE") else v
+
         for _, r in df_bom.iterrows():
             refs = [x.strip() for x in str(r["Reference_IDs"]).split(",") if x.strip()]
             for ref in refs:
                 entry = registry.setdefault(ref, {"make": "", "model": ""})
                 if not entry["make"]:
-                    entry["make"] = str(r.get("Make", "") or "")
+                    entry["make"] = _clean(r.get("Make"))
                 if not entry["model"]:
-                    entry["model"] = str(r.get("Model", "") or "")
-                bom_type_by_id[ref] = str(r.get("Type", "") or "")
+                    entry["model"] = _clean(r.get("Model"))
+                bom_type_by_id[ref] = _clean(r.get("Type"))
 
     # Pass 4: classification + offline knowledge
     for cid, entry in registry.items():

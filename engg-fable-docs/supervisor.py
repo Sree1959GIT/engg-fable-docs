@@ -110,6 +110,8 @@ class SupervisorAgent:
 
         # ── Stage 2b: descriptions (sequential for contextual continuity) ──
         self._progress("Stage 2b: Writing subsystem descriptions")
+        sys_name_early = (str(df_conn["System_Name"].iloc[0])
+                          if "System_Name" in df_conn.columns else "System")
         prior_context = ""
         for s in subs:
             self._progress("Stage 2b", s)
@@ -118,6 +120,8 @@ class SupervisorAgent:
                 registry=registry,
                 research_cache=self.state["research_cache"],
                 prior_context=prior_context,
+                interconnections=self.state["interconnections"].get(s, []),
+                sys_name=sys_name_early,
                 feedback=feedback,
             )
             self.state["descriptions"][s] = d

@@ -10,7 +10,7 @@ import pandas as pd
 import streamlit as st
 
 from src.bom_generator import generate_draft_bom
-from src.excel_parser import parse_connectivity_data
+from src.input_parser import parse_any
 from src.llm_client import llm_available
 from supervisor import SupervisorAgent
 
@@ -31,10 +31,11 @@ if "step" not in st.session_state:
 
 if st.session_state.step == 1:
     st.header("Step 1: Upload Connectivity Data")
-    raw = st.file_uploader("Upload Excel (.xlsx)", type=["xlsx"])
+    raw = st.file_uploader("Upload connectivity data (.xlsx, .csv, .docx, .txt, .md)",
+                           type=["xlsx", "xls", "csv", "docx", "txt", "md"])
     if raw and st.button("Analyze & Generate Draft BOM", type="primary"):
         with st.spinner("Parsing..."):
-            st.session_state.df_conn = parse_connectivity_data(raw)
+            st.session_state.df_conn = parse_any(raw, filename=raw.name)
         with st.spinner("Inferring part data..."):
             st.session_state.df_bom = generate_draft_bom(st.session_state.df_conn)
         st.session_state.step = 2

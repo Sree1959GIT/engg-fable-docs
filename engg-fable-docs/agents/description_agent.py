@@ -33,6 +33,23 @@ _SYSTEM_PROMPT = (
 )
 
 
+def _dominant_class(subsystem: str, connections: pd.DataFrame) -> str:
+    """Functional theme of a sub-module: the name is the strongest hint
+    (a 'Motor_Drive' block full of PWM control lines is still an actuation
+    stage), signal-class majority is the fallback."""
+    n = subsystem.lower()
+    if any(w in n for w in ("motor", "drive", "actuat")):
+        return "motor"
+    if any(w in n for w in ("power", "supply", "batt")):
+        return "power"
+    if any(w in n for w in ("comm", "interface", "bus", "network")):
+        return "data"
+    if any(w in n for w in ("control", "logic")):
+        return "control"
+    classes = [classify_signal(str(s)) for s in connections["Signal_Name"]]
+    return max(set(classes), key=classes.count) if classes else "other"
+
+
 def _direction_summary(cid: str, connections: pd.DataFrame) -> str:
     """One sentence on what this component drives/receives in this subsystem."""
     drives, receives = [], []
@@ -123,6 +140,8 @@ class DescriptionAgent:
             registry: Dict[str, dict] = None,
             research_cache: Dict[str, dict] = None,
             prior_context: str = "",
+            interconnections: list = None,
+            sys_name: str = "",
             feedback: str = "") -> Dict:
         registry = registry or {}
         comp_descs = DescriptionAgent.describe_components(connections, registry, research_cache or {})
@@ -136,15 +155,53 @@ class DescriptionAgent:
                 subsystem, connections, comp_descs, module_descs)
 
         overview = DescriptionAgent._overview(subsystem, connections, narrative)
+        role = DescriptionAgent._role_in_system(
+            subsystem, connections, interconnections or [], sys_name, prior_context)
 
         return {
             "subsystem_name": subsystem,
             "overview": overview,
             "full_description": narrative,
+            "role_in_system": role,
             "component_descriptions": comp_descs,
             "module_descriptions": module_descs,
             "signals": signals,
         }
+
+    @staticmethod
+    def _role_in_system(subsystem, connections, interconnections,
+                        sys_name, prior_context) -> str:
+        """Explain this sub-module's role in the context of the ENTIRE system."""
+        name = subsystem.replace("_", " ")
+        system = (sys_name or "the system").replace("_", " ")
+        dominant = _dominant_class(subsystem, connections)
+        stage = {
+            "power": "It forms the power entry and conditioning stage: every "
+                     "downstream function depends on the rails it establishes.",
+            "data": "It forms the supervisory and communication stage, closing the "
+                    "loop between measurement, protection and actuation.",
+            "control": "It provides the command and coordination layer of the system.",
+            "motor": "It forms the actuation stage, converting the controller's "
+                     "commands into the system's physical output.",
+        }.get(dominant, "It provides supporting functions to the rest of the system.")
+
+        link_sentences = []
+        for ic in interconnections:
+            other = ic["other_subsystem"].replace("_", " ")
+            link_sentences.append(
+                f"It interfaces with the {other} sub-module through "
+                f"{ic['shared_components']} (signals: {ic['signals']}).")
+
+        base = (f"Within the {system}, the {name} sub-module is one of the "
+                f"principal functional stages. {stage} "
+                + " ".join(link_sentences))
+
+        prompt = (
+            f"Rewrite as one flowing paragraph for a technical manual, keeping all "
+            f"reference designators and signal names exactly as given:\n{base}"
+            + (f"\n\nContext of other sub-modules:\n{prior_context}" if prior_context else ""))
+        polished = ask_llm(prompt, _SYSTEM_PROMPT, max_tokens=MAX_TOKENS_SHORT)
+        return polished if polished and len(polished) > 80 else base
 
     @staticmethod
     def _subsystem_llm(subsystem, connections, comp_descs, module_descs,
@@ -173,9 +230,8 @@ class DescriptionAgent:
     def _subsystem_fallback(subsystem, connections, comp_descs, module_descs) -> str:
         """Professional template narrative — no LLM required."""
         name = subsystem.replace("_", " ")
-        classes = [classify_signal(str(s)) for s in connections["Signal_Name"]]
         n_comp = len(comp_descs)
-        dominant = max(set(classes), key=classes.count) if classes else "other"
+        dominant = _dominant_class(subsystem, connections)
         purpose = {
             "power": f"The {name} subsystem conditions and distributes electrical power to the rest of the system.",
             "data": f"The {name} subsystem provides the digital communication backbone between the system's intelligent devices.",

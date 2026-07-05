@@ -211,68 +211,77 @@ class DocumentationAgent:
         _docx_toc_field(doc)
         doc.add_page_break()
 
-        # ── 1. BOM ──
-        doc.add_heading("1. Bill of Materials", 1)
-        if not df_bom.empty:
-            _docx_table(doc, list(df_bom.columns),
-                        [[r[c] for c in df_bom.columns] for _, r in df_bom.iterrows()])
-        doc.add_page_break()
-
-        # ── 2. System overview ──
-        doc.add_heading("2. System Overview", 1)
+        # ── 1. System overview ──
+        doc.add_heading("1. System Overview", 1)
         sys_diag = diags.get("System_Overview")
         if sys_diag and os.path.exists(sys_diag):
             doc.add_picture(sys_diag, width=Inches(6.3))
-        doc.add_heading("2.1 Functional Description", 2)
+        doc.add_heading("1.1 Functional Description", 2)
         for para in (system_desc or "System description not available.").split("\n\n"):
             doc.add_paragraph(para)
 
         bridges = state.get("bridges", [])
         if bridges:
-            doc.add_heading("2.2 Subsystem Interconnections", 2)
-            _docx_table(doc, ["Bridging Component", "Subsystems", "Signal Classes"],
+            doc.add_heading("1.2 Sub-Module Interconnections", 2)
+            _docx_table(doc, ["Bridging Component", "Sub-Modules", "Signal Classes"],
                         [[b["component"], " ↔ ".join(b["subsystems"]),
                           ", ".join(b["signal_classes"])] for b in bridges])
         doc.add_page_break()
 
-        # ── 3. Subsystems ──
-        doc.add_heading("3. Subsystem Descriptions", 1)
+        # ── 2. Sub-modules ──
+        doc.add_heading("2. Sub-Module Descriptions", 1)
         for idx, (sn, d) in enumerate(descs.items(), start=1):
             if not isinstance(d, dict):
                 continue
             title = sn.replace("_", " ")
-            doc.add_heading(f"3.{idx} {title}", 2)
+            doc.add_heading(f"2.{idx} {title}", 2)
 
             ip = diags.get(sn)
             if ip and os.path.exists(ip):
                 doc.add_picture(ip, width=Inches(6.3))
 
-            doc.add_heading(f"3.{idx}.1 Functional Description", 3)
+            doc.add_heading(f"2.{idx}.1 Functional Description", 3)
             for para in d.get("full_description", "").split("\n\n"):
                 doc.add_paragraph(para)
 
+            role = d.get("role_in_system", "")
+            if role:
+                doc.add_heading(f"2.{idx}.2 Role in the Overall System", 3)
+                doc.add_paragraph(role)
+
             comp_descs = d.get("component_descriptions", {})
             if comp_descs:
-                doc.add_heading(f"3.{idx}.2 Component Roles", 3)
+                doc.add_heading(f"2.{idx}.3 Component Roles", 3)
                 for text in comp_descs.values():
                     doc.add_paragraph(text, style="List Bullet")
 
             ic = interconnects.get(sn, [])
             if ic:
-                doc.add_heading(f"3.{idx}.3 Interconnections with Other Subsystems", 3)
-                _docx_table(doc, ["Connected Subsystem", "Via Components", "Signals"],
+                doc.add_heading(f"2.{idx}.4 Interconnections with Other Sub-Modules", 3)
+                _docx_table(doc, ["Connected Sub-Module", "Via Components", "Signals"],
                             [[r["other_subsystem"].replace("_", " "),
                               r["shared_components"], r["signals"]] for r in ic])
 
             sigs = d.get("signals", [])
             if sigs:
-                doc.add_heading(f"3.{idx}.4 Signal List", 3)
+                doc.add_heading(f"2.{idx}.5 Signal List", 3)
                 _docx_table(doc, ["Signal", "Class", "Connections"],
                             [[s["signal"], s["class"], s["connections"]] for s in sigs])
             doc.add_page_break()
 
+        # ── 3. BOM (curated) ──
+        doc.add_heading("3. Bill of Materials", 1)
+        doc.add_paragraph(
+            "Curated bill of materials derived from the connectivity data. Entries "
+            "marked 'TBD' were inferred from connectivity context and require "
+            "confirmation before procurement.")
+        if not df_bom.empty:
+            _docx_table(doc, list(df_bom.columns),
+                        [[r[c] for c in df_bom.columns] for _, r in df_bom.iterrows()])
+        doc.add_page_break()
+
         # ── 4. Connectivity appendix ──
-        doc.add_heading("4. Appendix — Connectivity Data", 1)
+        doc.add_heading("4. Connectivity Data", 1)
         for sn, g in df_conn.groupby("Subsystem_Name"):
             doc.add_heading(str(sn).replace("_", " "), 2)
             cols = ["Component_ID", "Source_Pin", "Target_ID", "Target_Pin", "Signal_Name"]
@@ -321,16 +330,8 @@ class DocumentationAgent:
         story.append(toc)
         story.append(PageBreak())
 
-        # ── 1. BOM ──
-        story.append(Paragraph("1. Bill of Materials", ss["TOCHeading1"]))
-        if not df_bom.empty:
-            story.append(_pdf_table(list(df_bom.columns),
-                                    [[r[c] for c in df_bom.columns]
-                                     for _, r in df_bom.iterrows()], ss))
-        story.append(PageBreak())
-
-        # ── 2. System overview ──
-        story.append(Paragraph("2. System Overview", ss["TOCHeading1"]))
+        # ── 1. System overview ──
+        story.append(Paragraph("1. System Overview", ss["TOCHeading1"]))
         sys_diag = diags.get("System_Overview")
         if sys_diag and os.path.exists(sys_diag):
             img = _pdf_image(sys_diag)
@@ -341,20 +342,20 @@ class DocumentationAgent:
             story.append(Paragraph(para, ss["Body"]))
         if bridges:
             story.append(Spacer(1, 0.15 * inch))
-            story.append(Paragraph("Subsystem Interconnections", ss["TOCHeading2"]))
+            story.append(Paragraph("Sub-Module Interconnections", ss["TOCHeading2"]))
             story.append(_pdf_table(
-                ["Bridging Component", "Subsystems", "Signal Classes"],
+                ["Bridging Component", "Sub-Modules", "Signal Classes"],
                 [[b["component"], " / ".join(b["subsystems"]),
                   ", ".join(b["signal_classes"])] for b in bridges], ss))
         story.append(PageBreak())
 
-        # ── 3. Subsystems ──
-        story.append(Paragraph("3. Subsystem Descriptions", ss["TOCHeading1"]))
+        # ── 2. Sub-modules ──
+        story.append(Paragraph("2. Sub-Module Descriptions", ss["TOCHeading1"]))
         for idx, (sn, d) in enumerate(descs.items(), start=1):
             if not isinstance(d, dict):
                 continue
             title = sn.replace("_", " ")
-            story.append(Paragraph(f"3.{idx} {title}", ss["TOCHeading2"]))
+            story.append(Paragraph(f"2.{idx} {title}", ss["TOCHeading2"]))
             ip = diags.get(sn)
             if ip and os.path.exists(ip):
                 img = _pdf_image(ip)
@@ -363,6 +364,12 @@ class DocumentationAgent:
                     story.append(Spacer(1, 0.12 * inch))
             for para in d.get("full_description", "").split("\n\n"):
                 story.append(Paragraph(para, ss["Body"]))
+
+            role = d.get("role_in_system", "")
+            if role:
+                story.append(Spacer(1, 0.08 * inch))
+                story.append(Paragraph("<b>Role in the Overall System</b>", ss["Body"]))
+                story.append(Paragraph(role, ss["Body"]))
 
             comp_descs = d.get("component_descriptions", {})
             if comp_descs:
@@ -373,9 +380,9 @@ class DocumentationAgent:
             ic = interconnects.get(sn, [])
             if ic:
                 story.append(Spacer(1, 0.1 * inch))
-                story.append(Paragraph("<b>Interconnections with Other Subsystems</b>", ss["Body"]))
+                story.append(Paragraph("<b>Interconnections with Other Sub-Modules</b>", ss["Body"]))
                 story.append(_pdf_table(
-                    ["Connected Subsystem", "Via Components", "Signals"],
+                    ["Connected Sub-Module", "Via Components", "Signals"],
                     [[r["other_subsystem"].replace("_", " "), r["shared_components"],
                       r["signals"]] for r in ic], ss))
 
@@ -389,8 +396,20 @@ class DocumentationAgent:
                                         col_widths=[1.1 * inch, 1.2 * inch, 4.1 * inch]))
             story.append(PageBreak())
 
+        # ── 3. BOM (curated) ──
+        story.append(Paragraph("3. Bill of Materials", ss["TOCHeading1"]))
+        story.append(Paragraph(
+            "Curated bill of materials derived from the connectivity data. Entries "
+            "marked 'TBD' were inferred from connectivity context and require "
+            "confirmation before procurement.", ss["Body"]))
+        if not df_bom.empty:
+            story.append(_pdf_table(list(df_bom.columns),
+                                    [[r[c] for c in df_bom.columns]
+                                     for _, r in df_bom.iterrows()], ss))
+        story.append(PageBreak())
+
         # ── 4. Appendix ──
-        story.append(Paragraph("4. Appendix — Connectivity Data", ss["TOCHeading1"]))
+        story.append(Paragraph("4. Connectivity Data", ss["TOCHeading1"]))
         for sn, g in df_conn.groupby("Subsystem_Name"):
             story.append(Paragraph(str(sn).replace("_", " "), ss["TOCHeading2"]))
             cols = ["Component_ID", "Source_Pin", "Target_ID", "Target_Pin", "Signal_Name"]
