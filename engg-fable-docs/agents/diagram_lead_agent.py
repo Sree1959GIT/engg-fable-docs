@@ -113,6 +113,16 @@ class DiagramLeadAgent:
             output_dir: str = DIAGRAM_DIR) -> Optional[str]:
         if registry is None:
             registry = build_component_registry(connections)
+        # Primary path: IEC 60617 schematic renderer (pure Pillow, orthogonal
+        # channel routing, manufacturer-style symbols). Graphviz DOT remains
+        # only as a fallback if the renderer fails on unusual data.
+        try:
+            from src.schematic_renderer import render_schematic
+            path = render_schematic(subsystem, connections, registry, output_dir)
+            if path:
+                return path
+        except Exception as e:
+            print(f"  ⚠ [Schematic] Renderer failed ({e}); falling back to Graphviz")
         dot = DiagramLeadAgent._subsystem_dot(subsystem, connections, registry)
         return DiagramLeadAgent._render(dot, _safe_id(subsystem), output_dir)
 
