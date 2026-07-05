@@ -1,246 +1,262 @@
-"""agents/diagram_lead_agent.py — Fallback diagram builder (no LLM needed).
-Generates DOT with proper routing, IEC 60617/81346 conventions, and system-level overview."""
+"""agents/diagram_lead_agent.py — Deterministic CAD-style diagram generation.
+
+Design decisions (see IMPROVEMENTS.md):
+- Diagrams are generated PROGRAMMATICALLY, never by the LLM. DOT syntax from a
+  small local model is unreliable; connectivity data is already structured.
+- Components are drawn as IC-style pin tables (HTML-like labels) with one PORT
+  per pin. Edges attach to pin cells on the node boundary (tailport/headport),
+  which is what eliminates lines passing through blocks.
+- splines=ortho + generous nodesep/ranksep gives Manhattan routing around nodes.
+- Signal names are drawn as edge xlabels colored by signal class
+  (red=power, blue=data, green=control, purple=motor — master.md §6.1).
+- Every sheet gets an IEC-style title block (title / doc no / rev / date) and
+  a signal-class legend.
+- Output: PNG (for DOCX/PDF embedding) + SVG (scalable, for review).
+"""
+import html
 import os
-import graphviz
-import pandas as pd
+import re
+from datetime import date
 from typing import Dict, Optional
 
-# IEC 81346 Reference Designator Prefixes
-TYPE_PREFIXES = {
-    "connector": "J", "header": "J", "terminal": "X", "plug": "J",
-    "diode": "D", "schottky": "D", "led": "D", "rectifier": "D",
-    "motor": "M", "actuator": "M",
-    "resistor": "R", "capacitor": "C", "inductor": "L",
-    "transistor": "Q", "mosfet": "Q", "bjt": "Q",
-    "sensor": "B", "detector": "B",
-    "battery": "BT", "cell": "BT",
-    "switch": "S", "relay": "K", "fuse": "F",
-    "transformer": "T", "amplifier": "A", "filter": "Z",
+import graphviz
+import pandas as pd
+
+from src.component_registry import (
+    SIGNAL_CLASSES,
+    build_component_registry,
+    classify_signal,
+    shape_for_prefix,
+)
+from src.config import DIAGRAM_DIR, DOC_NUMBER, DOC_VERSION
+
+# Header fill per IEC 81346 class letter
+_CLASS_HEADER_COLORS = {
+    "U": "#1F4E79", "J": "#7F6000", "X": "#7F6000", "D": "#843C0C",
+    "M": "#5B2C6F", "R": "#375623", "C": "#375623", "L": "#375623",
+    "F": "#990000", "K": "#3E3E3E", "B": "#0B5345", "Q": "#843C0C",
+    "T": "#3E3E3E", "S": "#3E3E3E", "BT": "#1A5276",
 }
 
-SUBSYSTEM_COLORS = {
-    "power": "#FFF2CC", "battery": "#D9EAD3", "motor": "#F4CCCC",
-    "drive": "#F4CCCC", "control": "#CFE2F3", "communication": "#D9D2E9",
-    "sensor": "#FCE5CD", "interface": "#E6D5F5", "safety": "#FFE0E0",
-}
+
+def _safe_id(s: str) -> str:
+    return re.sub(r"[^A-Za-z0-9_]", "_", str(s))
 
 
-def _refdes(model: str) -> str:
-    m = model.lower()
-    for key, prefix in TYPE_PREFIXES.items():
-        if key in m:
-            return prefix
-    return "U"
+def _port_id(pin: str) -> str:
+    return "p_" + _safe_id(pin)
 
 
-def _shape(model: str) -> str:
-    m = model.lower()
-    if any(w in m for w in ["connector", "header", "terminal"]):
-        return "parallelogram"
-    if any(w in m for w in ["diode", "schottky", "led"]):
-        return "diamond"
-    if any(w in m for w in ["motor"]):
-        return "invtriangle"
-    if any(w in m for w in ["sensor"]):
-        return "diamond"
-    if any(w in m for w in ["battery"]):
-        return "ellipse"
-    return "box"
+def _node_html(cid: str, info: dict, pins: list) -> str:
+    """IC-style block: header (refdes + type), make/model row, one row per pin port."""
+    header_color = _CLASS_HEADER_COLORS.get(info.get("prefix", "U"), "#1F4E79")
+    make = html.escape(info.get("make") or "")
+    model = html.escape(info.get("model") or "")
+    ctype = html.escape(info.get("type") or "")
+    rows = [
+        f'<TR><TD BGCOLOR="{header_color}" COLSPAN="1">'
+        f'<FONT COLOR="white" POINT-SIZE="11"><B>{html.escape(cid)}</B></FONT></TD></TR>',
+        f'<TR><TD BGCOLOR="#EDEDED"><FONT POINT-SIZE="8">{ctype}</FONT></TD></TR>',
+    ]
+    if make or model:
+        rows.append(f'<TR><TD BGCOLOR="#FFFFFF"><FONT POINT-SIZE="8">{make}<BR/>{model}</FONT></TD></TR>')
+    for pin in pins:
+        rows.append(
+            f'<TR><TD PORT="{_port_id(pin)}" BGCOLOR="#FFFFFF" ALIGN="LEFT">'
+            f'<FONT POINT-SIZE="9">{html.escape(str(pin))}</FONT></TD></TR>'
+        )
+    return ('<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="3">'
+            + "".join(rows) + "</TABLE>>")
 
 
-def _color(subsystem: str) -> str:
-    s = subsystem.lower()
-    for key, clr in SUBSYSTEM_COLORS.items():
-        if key in s:
-            return clr
-    return "#F3F3F3"
+def _title_block(title: str, sheet: str) -> str:
+    today = date.today().isoformat()
+    return (
+        '<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">'
+        f'<TR><TD COLSPAN="4"><B>{html.escape(title)}</B></TD></TR>'
+        f'<TR><TD>Doc: {html.escape(DOC_NUMBER)}</TD><TD>Rev: {html.escape(DOC_VERSION)}</TD>'
+        f'<TD>Date: {today}</TD><TD>Sheet: {html.escape(sheet)}</TD></TR>'
+        "</TABLE>>"
+    )
 
 
-def _signal_color(signal: str) -> str:
-    s = signal.lower()
-    if any(w in s for w in ["vcc", "vdd", "vbat", "v_", "3v3", "5v", "12v", "gnd"]):
-        return "red"
-    if any(w in s for w in ["spi", "i2c", "uart", "data", "clk", "miso", "mosi"]):
-        return "blue"
-    if any(w in s for w in ["pwm", "fault", "alert", "enable"]):
-        return "green"
-    if any(w in s for w in ["phase"]):
-        return "#800080"
-    return "#555555"
+def _legend_html(classes_used) -> str:
+    cells = "".join(
+        f'<TR><TD BGCOLOR="{SIGNAL_CLASSES[c]["color"]}" WIDTH="14"></TD>'
+        f'<TD ALIGN="LEFT"><FONT POINT-SIZE="8">{SIGNAL_CLASSES[c]["label"]}</FONT></TD></TR>'
+        for c in classes_used
+    )
+    return ('<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="2" CELLPADDING="2">'
+            '<TR><TD COLSPAN="2"><FONT POINT-SIZE="9"><B>Legend</B></FONT></TD></TR>'
+            + cells + "</TABLE>>")
 
 
 class DiagramLeadAgent:
-    """Generates wiring diagrams. Falls back to programmatic DOT if LLM fails."""
+    """Generates subsystem wiring diagrams and the system-level block diagram."""
 
     @staticmethod
     def run(subsystem: str, connections: pd.DataFrame,
-            specs_cache: Dict[str, dict] = None,
+            registry: Dict[str, dict] = None,
             feedback: str = "",
-            output_dir: str = "output/diagrams") -> Optional[str]:
-        return DiagramLeadAgent._build_and_render(subsystem, connections, output_dir)
+            output_dir: str = DIAGRAM_DIR) -> Optional[str]:
+        if registry is None:
+            registry = build_component_registry(connections)
+        dot = DiagramLeadAgent._subsystem_dot(subsystem, connections, registry)
+        return DiagramLeadAgent._render(dot, _safe_id(subsystem), output_dir)
 
+    # ── Subsystem wiring diagram ──────────────────────────────────────────
     @staticmethod
-    def build_system_diagram(df_conn: pd.DataFrame,
-                             output_dir: str = "output/diagrams") -> Optional[str]:
-        """Generate an overall system-level block diagram showing all subsystems."""
-        lines = []
-        lines.append("digraph System_Overview {")
-        lines.append("  rankdir=TB;")  # Top-to-bottom for system view
-        lines.append("  nodesep=0.8;")
-        lines.append("  ranksep=1.2;")
-        lines.append("  splines=true;")
-        lines.append('  label="System Block Diagram";')
-        lines.append('  fontsize=16;')
+    def _subsystem_dot(subsystem: str, connections: pd.DataFrame,
+                       registry: Dict[str, dict]) -> str:
+        # Which pins does each component use in THIS subsystem?
+        pins: Dict[str, list] = {}
+        for _, r in connections.iterrows():
+            src, tgt = str(r["Component_ID"]), str(r["Target_ID"])
+            sp, tp = str(r["Source_Pin"]), str(r["Target_Pin"])
+            pins.setdefault(src, [])
+            pins.setdefault(tgt, [])
+            if sp not in pins[src]:
+                pins[src].append(sp)
+            if tp not in pins[tgt]:
+                pins[tgt].append(tp)
+
+        classes_used = sorted({classify_signal(s) for s in connections["Signal_Name"]})
+
+        lines = [
+            f"digraph {_safe_id(subsystem)} {{",
+            "  rankdir=LR;",
+            "  splines=ortho;",
+            "  nodesep=0.7;",
+            "  ranksep=1.4;",
+            "  concentrate=false;",
+            '  fontname="Helvetica";',
+            f"  label={_title_block(subsystem.replace('_', ' ') + ' — Wiring Diagram', subsystem)};",
+            "  labelloc=b;",
+            '  node [fontname="Helvetica", shape=plaintext];',
+            '  edge [fontname="Helvetica", fontsize=8, arrowsize=0.6];',
+            "",
+            f"  legend [label={_legend_html(classes_used)}];",
+            "",
+        ]
+
+        for cid, pin_list in pins.items():
+            info = registry.get(cid, {"prefix": "U", "type": "Component", "make": "", "model": ""})
+            if info.get("is_rail"):
+                # Power rails are drawn as supply flags, not IC blocks
+                ports = "".join(
+                    f'<TR><TD PORT="{_port_id(p)}"><FONT POINT-SIZE="8">{html.escape(str(p))}</FONT></TD></TR>'
+                    for p in pin_list)
+                lbl = ('<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="3" BGCOLOR="#FBE5D6">'
+                       f'<TR><TD><FONT POINT-SIZE="10"><B>▽ {html.escape(cid)}</B></FONT></TD></TR>'
+                       + ports + "</TABLE>>")
+                lines.append(f"  {_safe_id(cid)} [label={lbl}];")
+            else:
+                lines.append(f"  {_safe_id(cid)} [label={_node_html(cid, info, pin_list)}];")
+
         lines.append("")
-
-        # One cluster per subsystem
-        for sub_name, group in df_conn.groupby("Subsystem_Name"):
-            fill = _color(sub_name)
-            safe_sub = sub_name.replace(" ", "_").replace("-", "_")
-            lines.append(f'  subgraph cluster_{safe_sub} {{')
-            lines.append(f'    label="{sub_name}";')
-            lines.append(f'    style="filled,rounded";')
-            lines.append(f'    bgcolor="{fill}";')
-            lines.append(f'    fontsize=14;')
-            lines.append('    node [style=filled, fillcolor=white, fontsize=10];')
-
-            # Collect unique component IDs in this subsystem
-            comps = set()
-            for _, r in group.iterrows():
-                comps.add(r["Component_ID"])
-                comps.add(r["Target_ID"])
-            for cid in comps:
-                lines.append(f'    {cid.replace("-","_").replace(".","_")} '
-                             f'[label="{cid}", shape=box, width=1.2, height=0.4];')
-            lines.append("  }")
-            lines.append("")
-
-        # Inter-subsystem connections
-        lines.append("  // Inter-subsystem connections")
-        for sub_name, group in df_conn.groupby("Subsystem_Name"):
-            for _, r in group.iterrows():
-                src = r["Component_ID"].replace("-", "_").replace(".", "_")
-                tgt = r["Target_ID"].replace("-", "_").replace(".", "_")
-                sig = r["Signal_Name"]
-                lines.append(f'  {src} -> {tgt} [label="{sig}", '
-                             f'color="{_signal_color(sig)}", penwidth=1.2];')
+        for _, r in connections.iterrows():
+            src, tgt = _safe_id(r["Component_ID"]), _safe_id(r["Target_ID"])
+            sp, tp = _port_id(str(r["Source_Pin"])), _port_id(str(r["Target_Pin"]))
+            sig = str(r["Signal_Name"])
+            cls = classify_signal(sig)
+            color = SIGNAL_CLASSES[cls]["color"]
+            pw = "2.2" if cls in ("power", "motor") else "1.3"
+            style = "dashed" if cls == "ground" else "solid"
+            lines.append(
+                f'  {src}:{sp}:e -> {tgt}:{tp}:w '
+                f'[xlabel=<<FONT COLOR="{color}" POINT-SIZE="8">{html.escape(sig)}</FONT>>, '
+                f'color="{color}", penwidth={pw}, style="{style}"];'
+            )
 
         lines.append("}")
+        return "\n".join(lines)
 
-        return DiagramLeadAgent._render_dot("\n".join(lines), "System_Overview", output_dir)
-
+    # ── System-level block diagram ────────────────────────────────────────
     @staticmethod
-    def _build_and_render(subsystem: str, connections: pd.DataFrame,
-                          output_dir: str) -> Optional[str]:
-        """Build DOT code programmatically and render to PNG."""
-        dot = DiagramLeadAgent._generate_dot(subsystem, connections)
-        if not dot:
-            return None
-        return DiagramLeadAgent._render_dot(dot, subsystem, output_dir)
+    def build_system_diagram(df_conn: pd.DataFrame,
+                             registry: Dict[str, dict] = None,
+                             output_dir: str = DIAGRAM_DIR) -> Optional[str]:
+        """One block per subsystem (listing its components); edges show the
+        bridging components / signal classes that link subsystems."""
+        if registry is None:
+            registry = build_component_registry(df_conn)
+        sys_name = str(df_conn["System_Name"].iloc[0]) if "System_Name" in df_conn.columns else "System"
 
+        sub_components: Dict[str, set] = {}
+        for sub, g in df_conn.groupby("Subsystem_Name"):
+            ids = set(g["Component_ID"].astype(str)) | set(g["Target_ID"].astype(str))
+            sub_components[str(sub)] = ids
+
+        subs = list(sub_components)
+        lines = [
+            "digraph System_Overview {",
+            "  rankdir=LR;",
+            "  splines=ortho;",
+            "  nodesep=1.0;",
+            "  ranksep=1.6;",
+            '  fontname="Helvetica";',
+            f"  label={_title_block(sys_name.replace('_', ' ') + ' — System Block Diagram', 'System')};",
+            "  labelloc=b;",
+            '  node [fontname="Helvetica", shape=plaintext];',
+            '  edge [fontname="Helvetica", fontsize=9];',
+            "",
+        ]
+
+        for sub in subs:
+            comp_rows = "".join(
+                f'<TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">{html.escape(c)} — '
+                f'{html.escape(registry.get(c, {}).get("type", ""))}</FONT></TD></TR>'
+                for c in sorted(sub_components[sub])
+            )
+            lbl = ('<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">'
+                   f'<TR><TD BGCOLOR="#1F4E79"><FONT COLOR="white" POINT-SIZE="12">'
+                   f'<B>{html.escape(str(sub).replace("_", " "))}</B></FONT></TD></TR>'
+                   + comp_rows + "</TABLE>>")
+            lines.append(f"  {_safe_id(sub)} [label={lbl}];")
+
+        lines.append("")
+        # Bridging components: appear in more than one subsystem
+        drawn = set()
+        for i, a in enumerate(subs):
+            for b in subs[i + 1:]:
+                shared = sub_components[a] & sub_components[b]
+                if not shared:
+                    continue
+                # signal classes carried by the shared components in either subsystem
+                mask = (df_conn["Subsystem_Name"].astype(str).isin([a, b])
+                        & (df_conn["Component_ID"].astype(str).isin(shared)
+                           | df_conn["Target_ID"].astype(str).isin(shared)))
+                classes = sorted({classify_signal(s) for s in df_conn[mask]["Signal_Name"]})
+                color = SIGNAL_CLASSES[classes[0]]["color"] if len(classes) == 1 else "#333333"
+                label = "via " + ", ".join(sorted(shared))
+                key = (a, b)
+                if key not in drawn:
+                    drawn.add(key)
+                    lines.append(
+                        f'  {_safe_id(a)} -> {_safe_id(b)} [dir=both, color="{color}", '
+                        f'penwidth=1.6, xlabel=<<FONT POINT-SIZE="9">{html.escape(label)}</FONT>>];'
+                    )
+
+        lines.append("}")
+        return DiagramLeadAgent._render("\n".join(lines), "System_Overview", output_dir)
+
+    # ── Rendering ─────────────────────────────────────────────────────────
     @staticmethod
-    def _render_dot(dot_code: str, name: str, output_dir: str) -> Optional[str]:
-        """Render DOT code to PNG."""
+    def _render(dot_code: str, name: str, output_dir: str) -> Optional[str]:
         os.makedirs(output_dir, exist_ok=True)
         out_path = os.path.join(output_dir, f"{name}_diagram")
         try:
-            graphviz.Source(dot_code, format="png").render(out_path, cleanup=True)
+            src = graphviz.Source(dot_code)
+            src.render(out_path, format="png", cleanup=True)
+            try:
+                src.render(out_path, format="svg", cleanup=True)
+            except Exception:
+                pass  # SVG is a bonus; PNG is what the documents embed
             print(f"  ✓ [Diagram] Rendered: {out_path}.png")
             return f"{out_path}.png"
         except Exception as e:
             print(f"  ⚠ [Diagram] Render failed: {e}")
-            print("     Install Graphviz: https://graphviz.org/download/")
-            with open(f"{out_path}.dot", "w") as f:
+            print("     Install Graphviz binaries: https://graphviz.org/download/")
+            with open(f"{out_path}.dot", "w", encoding="utf-8") as f:
                 f.write(dot_code)
             return None
-
-    @staticmethod
-    def _generate_dot(subsystem: str, connections: pd.DataFrame) -> str:
-        """Generate DOT code from connectivity data with proper routing."""
-        fill = _color(subsystem)
-        lines = []
-        safe_name = subsystem.replace(" ", "_").replace("-", "_")
-        lines.append(f"digraph {safe_name} {{")
-        lines.append("  rankdir=LR;")
-        lines.append("  nodesep=0.8;")          # More spacing to prevent overlap
-        lines.append("  ranksep=1.5;")           # More rank spacing
-        lines.append("  splines=true;")          # Curved splines avoid overlap better
-        lines.append("  overlap=false;")
-        lines.append(f'  label="{subsystem}";')
-        lines.append('  fontname="Arial";')
-        lines.append('  node [fontname="Arial", fontsize=10];')
-        lines.append('  edge [fontname="Arial", fontsize=9];')
-        lines.append("")
-
-        # Collect all unique components
-        comps = {}
-        for _, r in connections.iterrows():
-            for cid, make, model in [
-                (r["Component_ID"], r["Make"], r["Model"]),
-                (r["Target_ID"], r["Make"], r["Model"]),
-            ]:
-                if cid not in comps:
-                    comps[cid] = (make, model)
-
-        # Add node definitions with IEC 81346 labels
-        lines.append("  // Components")
-        for cid, (make, model) in comps.items():
-            rd = _refdes(model)
-            sh = _shape(model)
-            safe_cid = cid.replace("-", "_").replace(".", "_")
-            label = f"{rd}:{cid}\\n{make}\\n{model}"
-            lines.append(f'  {safe_cid} [shape={sh}, style=filled, fillcolor=white, '
-                         f'label="{label}"];')
-
-        lines.append("")
-        lines.append("  // Connections")
-
-        # Group edges by type to avoid crossing
-        power_edges = []
-        data_edges = []
-        ctrl_edges = []
-        motor_edges = []
-        other_edges = []
-
-        for _, r in connections.iterrows():
-            src = r["Component_ID"].replace("-", "_").replace(".", "_")
-            tgt = r["Target_ID"].replace("-", "_").replace(".", "_")
-            sig = r["Signal_Name"]
-            sp = r["Source_Pin"]
-            tp = r["Target_Pin"]
-            color = _signal_color(sig)
-            pw = "2.0" if color == "red" else "1.5" if color == "#800080" else "1.0"
-            style = "dashed" if sig.lower() in ["gnd", "gnd_ref", "ground"] else "solid"
-            label = f"{sig}\\n({sp}→{tp})"
-            edge = f'  {src} -> {tgt} [color="{color}", penwidth={pw}, style="{style}", label="{label}"];'
-
-            if color == "red":
-                power_edges.append(edge)
-            elif color == "blue":
-                data_edges.append(edge)
-            elif color == "green":
-                ctrl_edges.append(edge)
-            elif color == "#800080":
-                motor_edges.append(edge)
-            else:
-                other_edges.append(edge)
-
-        # Output edges grouped by type
-        if power_edges:
-            lines.append("  // Power")
-            lines.extend(power_edges)
-        if data_edges:
-            lines.append("  // Data / Communication")
-            lines.extend(data_edges)
-        if ctrl_edges:
-            lines.append("  // Control")
-            lines.extend(ctrl_edges)
-        if motor_edges:
-            lines.append("  // Motor Phases")
-            lines.extend(motor_edges)
-        if other_edges:
-            lines.append("  // Other")
-            lines.extend(other_edges)
-
-        lines.append("}")
-        return "\n".join(lines)
