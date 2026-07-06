@@ -21,6 +21,11 @@ LLM_RETRY_BACKOFF_SEC = 2.0                          # 2s, 4s, 8s
 # Flooding it with 10 threads is what caused the empty responses.
 LLM_MAX_CONCURRENT = int(os.environ.get("LLM_MAX_CONCURRENT", "2"))
 
+# Context window PER REQUEST. NOTE: llama.cpp SPLITS -c across --parallel
+# slots, so `-c 8192 --parallel 2` gives each request ~4096 tokens — that is
+# the safe default here. Set LLM_CTX to match your server if different.
+LLM_CTX = int(os.environ.get("LLM_CTX", "4096"))
+
 # Per-task token budgets (small = fast = fewer timeouts on iGPU)
 MAX_TOKENS_RESEARCH = int(os.environ.get("MAX_TOKENS_RESEARCH", "512"))
 MAX_TOKENS_DESCRIPTION = int(os.environ.get("MAX_TOKENS_DESCRIPTION", "1024"))

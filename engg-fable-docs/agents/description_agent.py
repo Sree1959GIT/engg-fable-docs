@@ -120,8 +120,10 @@ class DescriptionAgent:
                 verb = "connects to"
             modules.append(f"{src} {verb} {tgt} via {detail}.")
 
-        # Optional LLM polish, seeded with level-1 output for continuity
-        if modules and len(modules) >= 2:
+        # Optional LLM polish, seeded with level-1 output for continuity.
+        # Skipped on large sheets: the prompt would blow the context window
+        # and the polished paragraph adds little over the stage-level text.
+        if modules and 2 <= len(modules) <= 25:
             prompt = (
                 "Rewrite the following point-to-point connection facts as one cohesive "
                 "paragraph describing how these components work together as a module. "
@@ -185,12 +187,18 @@ class DescriptionAgent:
                      "commands into the system's physical output.",
         }.get(dominant, "It provides supporting functions to the rest of the system.")
 
+        def _cap(csv_text: str, n: int = 6) -> str:
+            items = [x.strip() for x in str(csv_text).split(",") if x.strip()]
+            if len(items) <= n:
+                return ", ".join(items)
+            return ", ".join(items[:n]) + f" and {len(items) - n} more"
+
         link_sentences = []
         for ic in interconnections:
             other = ic["other_subsystem"].replace("_", " ")
             link_sentences.append(
                 f"It interfaces with the {other} sub-module through "
-                f"{ic['shared_components']} (signals: {ic['signals']}).")
+                f"{_cap(ic['shared_components'])} (signals: {_cap(ic['signals'])}).")
 
         base = (f"Within the {system}, the {name} sub-module is one of the "
                 f"principal functional stages. {stage} "
@@ -198,26 +206,39 @@ class DescriptionAgent:
 
         prompt = (
             f"Rewrite as one flowing paragraph for a technical manual, keeping all "
-            f"reference designators and signal names exactly as given:\n{base}"
-            + (f"\n\nContext of other sub-modules:\n{prior_context}" if prior_context else ""))
+            f"reference designators and signal names exactly as given:\n{base[:3000]}"
+            + (f"\n\nContext of other sub-modules:\n{prior_context[-1500:]}"
+               if prior_context else ""))
         polished = ask_llm(prompt, _SYSTEM_PROMPT, max_tokens=MAX_TOKENS_SHORT)
         return polished if polished and len(polished) > 80 else base
 
     @staticmethod
     def _subsystem_llm(subsystem, connections, comp_descs, module_descs,
                        prior_context, feedback) -> str:
+        # Production sheets can have 100+ components; sending everything
+        # overflows the server's context (llama.cpp answers 400). Cap the
+        # background lists — the LLM needs a representative sample, not the
+        # full netlist, to write a stage-level description.
+        comp_lines = [d[:180] for d in list(comp_descs.values())[:15]]
+        if len(comp_descs) > 15:
+            comp_lines.append(f"…and {len(comp_descs) - 15} further components "
+                              "(see Bill of Materials).")
+        mod_lines = [m[:180] for m in module_descs[:20]]
+        if len(module_descs) > 20:
+            mod_lines.append(f"…and {len(module_descs) - 20} further connections "
+                             "(see Signal List).")
         prompt_parts = [
             f"Write the functional description for the '{subsystem.replace('_', ' ')}' "
             "sub-module of an electrical system, as 2-3 paragraphs for a technical manual.",
             "\nBackground data (context only — do NOT reproduce it in the output):",
-            "\n".join(f"- {d}" for d in comp_descs.values()),
+            "\n".join(f"- {d}" for d in comp_lines),
             "\nConnections (context only):",
-            "\n".join(f"- {m}" for m in module_descs),
+            "\n".join(f"- {m}" for m in mod_lines),
         ]
         if prior_context:
             prompt_parts.append(
                 "\nPreviously documented sub-modules (maintain continuity, reference "
-                "them where signals cross the boundary):\n" + prior_context)
+                "them where signals cross the boundary):\n" + prior_context[-2000:])
         if feedback:
             prompt_parts.append(f"\nReviewer feedback to address: {feedback}")
         prompt_parts.append(
@@ -305,11 +326,13 @@ class DescriptionAgent:
     def describe_system(sys_name: str, descriptions: Dict[str, dict],
                         bridges: List[dict], feedback: str = "") -> str:
         sub_overviews = "\n".join(
-            f"- {sn.replace('_', ' ')}: {d.get('overview', '')}"
+            f"- {sn.replace('_', ' ')}: {str(d.get('overview', ''))[:250]}"
             for sn, d in descriptions.items())
         bridge_lines = "\n".join(
             f"- {b['component']} links {' and '.join(b['subsystems'])} "
-            f"({', '.join(b['signal_classes'])})" for b in bridges)
+            f"({', '.join(b['signal_classes'])})" for b in bridges[:20])
+        if len(bridges) > 20:
+            bridge_lines += f"\n- …and {len(bridges) - 20} further bridging components."
 
         prompt = (
             f"Write a 2-3 paragraph system-level functional description of the "
