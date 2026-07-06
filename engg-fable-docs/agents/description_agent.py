@@ -208,55 +208,87 @@ class DescriptionAgent:
                        prior_context, feedback) -> str:
         prompt_parts = [
             f"Write the functional description for the '{subsystem.replace('_', ' ')}' "
-            "subsystem of an electrical system, as 2-3 paragraphs for a technical manual.",
-            "\nComponent roles (already documented — reference, don't repeat verbatim):",
+            "sub-module of an electrical system, as 2-3 paragraphs for a technical manual.",
+            "\nBackground data (context only — do NOT reproduce it in the output):",
             "\n".join(f"- {d}" for d in comp_descs.values()),
-            "\nModule interactions:",
+            "\nConnections (context only):",
             "\n".join(f"- {m}" for m in module_descs),
         ]
         if prior_context:
             prompt_parts.append(
-                "\nPreviously documented subsystems (maintain continuity, reference "
+                "\nPreviously documented sub-modules (maintain continuity, reference "
                 "them where signals cross the boundary):\n" + prior_context)
         if feedback:
             prompt_parts.append(f"\nReviewer feedback to address: {feedback}")
         prompt_parts.append(
-            "\nStructure: (1) purpose of the subsystem, (2) signal flow from input "
-            "to output naming each component in order, (3) interfaces to other subsystems.")
+            "\nStructure: (1) the purpose of the sub-module within the system, "
+            "(2) its overall functional operation described at stage level, "
+            "(3) how it interacts with the other sub-modules. "
+            "IMPORTANT style rules: describe the sub-module as ONE functional "
+            "stage. Do NOT describe the functionality of individual components "
+            "(diodes, resistors, capacitors, inductors, ICs). Do NOT enumerate "
+            "pin-to-pin connections. Signal names and reference designators may "
+            "be mentioned only as waypoints of the overall flow.")
         raw = ask_llm("\n".join(prompt_parts), _SYSTEM_PROMPT, max_tokens=MAX_TOKENS_DESCRIPTION)
         return raw if raw and len(raw) > 120 else ""
 
     @staticmethod
     def _subsystem_fallback(subsystem, connections, comp_descs, module_descs) -> str:
-        """Professional template narrative — no LLM required."""
+        """Professional template narrative — no LLM required.
+
+        Review feedback: the description stays at STAGE level. No per-component
+        functionality (diode/resistor/capacitor/IC) and no pin-to-pin
+        enumeration — nets are summarized by signal class instead.
+        """
         name = subsystem.replace("_", " ")
         n_comp = len(comp_descs)
         dominant = _dominant_class(subsystem, connections)
         purpose = {
-            "power": f"The {name} subsystem conditions and distributes electrical power to the rest of the system.",
-            "data": f"The {name} subsystem provides the digital communication backbone between the system's intelligent devices.",
-            "control": f"The {name} subsystem carries the command and status signals that coordinate system operation.",
-            "motor": f"The {name} subsystem converts control commands into the phase currents that drive the motor.",
-        }.get(dominant, f"The {name} subsystem interconnects {n_comp} components of the system.")
+            "power": f"The {name} sub-module conditions and distributes electrical power to the rest of the system.",
+            "data": f"The {name} sub-module provides the digital communication backbone between the system's intelligent devices.",
+            "control": f"The {name} sub-module carries the command and status signals that coordinate system operation.",
+            "motor": f"The {name} sub-module converts control commands into the phase currents that drive the motor.",
+        }.get(dominant, f"The {name} sub-module interconnects {n_comp} components of the system.")
 
-        # Trace the power path in connection order (input connectors first)
-        para2_lines = []
-        power_rows = [r for _, r in connections.iterrows()
-                      if classify_signal(str(r["Signal_Name"])) == "power"]
-        if power_rows:
-            hops = " ".join(
-                f"{r['Signal_Name']} passes from {r['Component_ID']} (pin {r['Source_Pin']}) "
-                f"to {r['Target_ID']} (pin {r['Target_Pin']})." for r in power_rows)
-            para2_lines.append("Power flow: " + hops)
-        non_power = [m for m in module_descs
-                     if not m.startswith(tuple(str(r["Component_ID"]) for r in power_rows))] \
-            if len(module_descs) > 1 else module_descs
-        if non_power:
-            para2_lines.append("Signal flow: " + " ".join(non_power))
+        # Net-level functional flow, grouped by signal class
+        by_class: Dict[str, List[str]] = {}
+        for _, r in connections.iterrows():
+            sig = str(r["Signal_Name"])
+            c = classify_signal(sig)
+            if sig not in by_class.setdefault(c, []):
+                by_class[c].append(sig)
 
-        # Component roles are rendered as their own subsection by the
-        # documentation agent, so they are not repeated here.
-        return "\n\n".join([purpose] + para2_lines)
+        sentences = []
+        if "power" in by_class:
+            nets = by_class["power"]
+            if len(nets) > 1:
+                sentences.append(
+                    f"Power enters the stage on {nets[0]} and, after conditioning, "
+                    f"is made available as {', '.join(nets[1:])} for downstream use.")
+            else:
+                sentences.append(f"The stage carries the supply net {nets[0]}.")
+        if "data" in by_class:
+            sentences.append(
+                "Digital communication between the stage's devices is carried over "
+                + ", ".join(by_class["data"]) + ".")
+        if "control" in by_class:
+            sentences.append(
+                "Coordination and protection status are exchanged through the control "
+                "signals " + ", ".join(by_class["control"]) + ".")
+        if "analog" in by_class:
+            sentences.append(
+                "Operating conditions are monitored via " + ", ".join(by_class["analog"]) + ".")
+        if "motor" in by_class:
+            sentences.append(
+                "The stage delivers the three-phase outputs " + ", ".join(by_class["motor"])
+                + " that drive the motor.")
+        if "ground" in by_class:
+            sentences.append("A common ground reference is maintained throughout the stage.")
+
+        summary = (f"The sub-module integrates {n_comp} components operating together "
+                   f"as a single functional stage; the individual parts are listed in "
+                   f"the Bill of Materials.")
+        return "\n\n".join([purpose, " ".join(sentences), summary])
 
     @staticmethod
     def _overview(subsystem, connections, narrative) -> str:

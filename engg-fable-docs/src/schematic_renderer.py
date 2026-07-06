@@ -200,13 +200,13 @@ class Symbol:
         """Refdes above the symbol, make/model on separate short lines below
         (long one-line part numbers would spill into the routing channels).
         Returns the y below the last line written."""
-        sh.text(cx, above_y, self.cid, size=11, bold=True, anchor="mb")
+        sh.text(cx, above_y, self.cid, size=12, bold=True, anchor="mb")
         y = below_y
         for line in (self.info.get("make") or "", self.info.get("model") or ""):
             if line:
-                sh.text(cx, y, line, size=7, color="#333333", anchor="mt",
+                sh.text(cx, y, line, size=8, color="#333333", anchor="mt",
                         bg="white")
-                y += 11
+                y += 12
         return y
 
 
@@ -233,17 +233,17 @@ class ICSymbol(Symbol):
         for i, p in enumerate(self.left_pins):
             py = self._pin_y(i)
             sh.line(self.x, py, bx, py, "black", 2)
-            sh.text(bx + 5, py, p, size=8, anchor="lm")
+            sh.text(bx + 5, py, p, size=9, anchor="lm")
         for i, p in enumerate(self.right_pins):
             py = self._pin_y(i)
             sh.line(bx + self.BODY_W, py, self.x + self.w, py, "black", 2)
-            sh.text(bx + self.BODY_W - 5, py, p, size=8, anchor="rm")
+            sh.text(bx + self.BODY_W - 5, py, p, size=9, anchor="rm")
         next_y = self._draw_labels(sh, self.y - 4, self.y + self.h + 3,
                                    bx + self.BODY_W / 2)
         ctype = self.info.get("type") or ""
         if ctype:
             sh.text(bx + self.BODY_W / 2, next_y, ctype,
-                    size=7, color="#666666", anchor="mt")
+                    size=8, color="#666666", anchor="mt")
 
 
 class TwoTerminalSymbol(Symbol):
@@ -403,7 +403,7 @@ class ConnectorSymbol(Symbol):
             sh.line(edge, py, stub_out, py, "black", 2)
             sh.circle(edge, py, 3, width=2, fill="white")
             tx = bx + self.BODY_W / 2
-            sh.text(tx, py, p, size=8, anchor="mm")
+            sh.text(tx, py, p, size=9, anchor="mm")
         self._draw_labels(sh, self.y - 4, self.y + self.h + 3,
                           bx + self.BODY_W / 2)
 
@@ -436,7 +436,7 @@ class MotorSymbol(Symbol):
         cy = self.y + self.R
         sh.circle(cx, cy, self.R, width=2)
         sh.text(cx, cy, "M", size=16, bold=True, anchor="mm")
-        sh.text(cx, cy + 12, "3~", size=8, anchor="mm")
+        sh.text(cx, cy + 12, "3~", size=9, anchor="mm")
         pins = self._pins()
         for p in pins:
             px, py, f = self.pin_pos(p)
@@ -445,7 +445,7 @@ class MotorSymbol(Symbol):
             r_off = math.sqrt(max(self.R ** 2 - dy ** 2, 1))
             edge_x = cx + side * r_off
             sh.line(edge_x, py, px, py, "black", 2)
-            sh.text(edge_x - side * 8, py, p, size=8,
+            sh.text(edge_x - side * 8, py, p, size=9,
                     anchor="lm" if side > 0 else "rm")
         self._draw_labels(sh, self.y - 4, self.y + self.h + 3, cx)
 
@@ -484,11 +484,11 @@ class RailSymbol(Symbol):
             for i, wdt in enumerate((16, 10, 4)):
                 yy = cy + 8 + i * 4
                 sh.line(stub_x - wdt / 2, yy, stub_x + wdt / 2, yy, "black", 2)
-            sh.text(cx, cy - 8, self.cid, size=9, bold=True, anchor="mb")
+            sh.text(cx, cy - 8, self.cid, size=10, bold=True, anchor="mb")
         else:
             sh.line(stub_x, cy, stub_x, cy - 10, "black", 2)
             sh.line(stub_x - 12, cy - 10, stub_x + 12, cy - 10, "black", 3)
-            sh.text(cx, cy - 14, self.cid, size=9, bold=True, anchor="mb")
+            sh.text(cx, cy - 14, self.cid, size=10, bold=True, anchor="mb")
 
 
 _SYMBOL_BY_PREFIX = {
@@ -685,7 +685,7 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
 
     # ── sheet size ──
     classes_used = sorted({classify_signal(e["sig"]) for e in edges})
-    legend_h = 18 + len(classes_used) * 16
+    legend_h = 20 + len(classes_used) * 18
     title_h = 54
     sheet_w = int(x - CHANNEL_W + MARGIN + CHANNEL_W / 2)
     sheet_h = int(max(corridor_bottom, body_bottom + 60) + legend_h + title_h + 50)
@@ -717,8 +717,8 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
 
     def _label_bbox(cx, cy, tw, anchor):
         if anchor == "mm":
-            return (cx - tw / 2 - 3, cy - 7, cx + tw / 2 + 3, cy + 7)
-        return (cx - 3, cy - 7, cx + tw + 3, cy + 7)
+            return (cx - tw / 2 - 3, cy - 8, cx + tw / 2 + 3, cy + 8)
+        return (cx - 3, cy - 8, cx + tw + 3, cy + 8)
 
     def _collides(bb):
         return any(not (bb[2] < o[0] or bb[0] > o[2]
@@ -728,7 +728,7 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
     for e, pts, _ in routes:
         cls = classify_signal(e["sig"])
         color = SIGNAL_CLASSES[cls]["color"]
-        tw = sh.text_w(e["sig"], 8)
+        tw = sh.text_w(e["sig"], 9)
         candidates = []
         hsegs = sorted([s for s in zip(pts, pts[1:]) if s[0][1] == s[1][1]],
                        key=lambda s: -abs(s[1][0] - s[0][0]))
@@ -751,14 +751,14 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
             bb = _label_bbox(cx, cy, tw, anchor)
             if not _collides(bb):
                 placed_labels.append(bb)
-                sh.text(cx, cy, e["sig"], size=8, color=color,
+                sh.text(cx, cy, e["sig"], size=9, color=color,
                         anchor=anchor, bg="white")
                 break
         else:
             if candidates:
                 cx, cy, anchor = candidates[0]
                 placed_labels.append(_label_bbox(cx, cy, tw, anchor))
-                sh.text(cx, cy, e["sig"], size=8, color=color,
+                sh.text(cx, cy, e["sig"], size=9, color=color,
                         anchor=anchor, bg="white")
 
     for n in nodes:
@@ -766,14 +766,14 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
 
     # ── legend ──
     ly = sheet_h - title_h - legend_h - 16
-    lw = 150
+    lw = 170
     sh.rect(MARGIN, ly, lw, legend_h, width=1)
-    sh.text(MARGIN + lw / 2, ly + 9, "Legend", size=9, bold=True, anchor="mm")
+    sh.text(MARGIN + lw / 2, ly + 10, "Legend", size=10, bold=True, anchor="mm")
     for i, c in enumerate(classes_used):
-        yy = ly + 20 + i * 16
-        sh.rect(MARGIN + 8, yy - 5, 14, 10, width=1,
+        yy = ly + 24 + i * 18
+        sh.rect(MARGIN + 8, yy - 6, 16, 12, width=1,
                 fill=SIGNAL_CLASSES[c]["color"])
-        sh.text(MARGIN + 28, yy, SIGNAL_CLASSES[c]["label"], size=8, anchor="lm")
+        sh.text(MARGIN + 30, yy, SIGNAL_CLASSES[c]["label"], size=9, anchor="lm")
 
     # ── title block ──
     tb_w = min(560, sheet_w - 2 * MARGIN)
@@ -782,13 +782,13 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
     sh.rect(tb_x, tb_y, tb_w, 26, width=2)
     sh.text(tb_x + tb_w / 2, tb_y + 13,
             subsystem.replace("_", " ") + " — Wiring Diagram",
-            size=12, bold=True, anchor="mm")
+            size=13, bold=True, anchor="mm")
     cells = [f"Doc: {DOC_NUMBER}", f"Rev: {DOC_VERSION}",
              f"Date: {date.today().isoformat()}", f"Sheet: {subsystem}"]
     cw = tb_w / len(cells)
     for i, ctext in enumerate(cells):
         sh.rect(tb_x + i * cw, tb_y + 26, cw, 22, width=2)
-        sh.text(tb_x + i * cw + cw / 2, tb_y + 37, ctext, size=9, anchor="mm")
+        sh.text(tb_x + i * cw + cw / 2, tb_y + 37, ctext, size=10, anchor="mm")
 
     os.makedirs(output_dir, exist_ok=True)
     safe = re.sub(r"[^A-Za-z0-9_]", "_", subsystem)

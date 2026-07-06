@@ -249,22 +249,18 @@ class DocumentationAgent:
                 doc.add_heading(f"2.{idx}.2 Role in the Overall System", 3)
                 doc.add_paragraph(role)
 
-            comp_descs = d.get("component_descriptions", {})
-            if comp_descs:
-                doc.add_heading(f"2.{idx}.3 Component Roles", 3)
-                for text in comp_descs.values():
-                    doc.add_paragraph(text, style="List Bullet")
-
+            # Per review feedback, no per-component functionality section:
+            # sub-modules are documented as single functional stages.
             ic = interconnects.get(sn, [])
             if ic:
-                doc.add_heading(f"2.{idx}.4 Interconnections with Other Sub-Modules", 3)
+                doc.add_heading(f"2.{idx}.3 Interconnections with Other Sub-Modules", 3)
                 _docx_table(doc, ["Connected Sub-Module", "Via Components", "Signals"],
                             [[r["other_subsystem"].replace("_", " "),
                               r["shared_components"], r["signals"]] for r in ic])
 
             sigs = d.get("signals", [])
             if sigs:
-                doc.add_heading(f"2.{idx}.5 Signal List", 3)
+                doc.add_heading(f"2.{idx}.4 Signal List", 3)
                 _docx_table(doc, ["Signal", "Class", "Connections"],
                             [[s["signal"], s["class"], s["connections"]] for s in sigs])
             doc.add_page_break()
@@ -371,12 +367,7 @@ class DocumentationAgent:
                 story.append(Paragraph("<b>Role in the Overall System</b>", ss["Body"]))
                 story.append(Paragraph(role, ss["Body"]))
 
-            comp_descs = d.get("component_descriptions", {})
-            if comp_descs:
-                story.append(Paragraph("<b>Component Roles</b>", ss["Body"]))
-                for text in comp_descs.values():
-                    story.append(Paragraph(f"• {text}", ss["Body"]))
-
+            # Per review feedback, no per-component functionality section
             ic = interconnects.get(sn, [])
             if ic:
                 story.append(Spacer(1, 0.1 * inch))
