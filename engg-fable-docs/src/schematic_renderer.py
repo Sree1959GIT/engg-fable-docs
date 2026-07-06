@@ -23,6 +23,14 @@ from typing import Dict, List, Optional, Tuple
 
 from PIL import Image, ImageDraw, ImageFont
 
+# Production harness sheets can legitimately exceed PIL's decompression-bomb
+# threshold; we generate these images ourselves, so the guard only hurts.
+Image.MAX_IMAGE_PIXELS = None
+
+# Cap for the rendered PNG raster (the SVG always keeps full fidelity).
+# Sheets beyond this are downscaled so documents stay a sane size.
+_MAX_PNG_PIXELS = 60_000_000
+
 from src.component_registry import SIGNAL_CLASSES, classify_signal
 from src.config import DOC_NUMBER, DOC_VERSION
 
@@ -157,7 +165,15 @@ class Sheet:
         return (bb[2] - bb[0]) / SCALE
 
     def save(self, png_path: str, svg_path: str):
-        self.img.save(png_path)
+        img = self.img
+        w, h = img.size
+        if w * h > _MAX_PNG_PIXELS:
+            f = (_MAX_PNG_PIXELS / (w * h)) ** 0.5
+            img = img.resize((max(1, int(w * f)), max(1, int(h * f))),
+                             Image.LANCZOS)
+            print(f"  ℹ [Schematic] Large sheet downscaled to {img.size[0]}x"
+                  f"{img.size[1]} px for the PNG (SVG keeps full resolution)")
+        img.save(png_path)
         with open(svg_path, "w", encoding="utf-8") as f:
             f.write(f'<svg xmlns="http://www.w3.org/2000/svg" width="{self.w}" '
                     f'height="{self.h}" viewBox="0 0 {self.w} {self.h}">\n'
@@ -370,40 +386,35 @@ class InductorSymbol(TwoTerminalSymbol):
 
 
 class ConnectorSymbol(Symbol):
-    """Pin strip: body with contact circles + stubs on the wiring side."""
-    BODY_W = 58
+    """Pin strip: body with contact circles + stubs. Pins may sit on both
+    sides (a feed-through connector receiving on one side and driving on
+    the other is common in production harnesses)."""
+    BODY_W = 66
 
     def _size(self):
-        pins = self.left_pins + self.right_pins
-        return self.BODY_W + STUB, max(len(pins), 1) * PIN_PITCH + 12
-
-    def _side(self) -> int:
-        return -1 if self.left_pins else +1
-
-    def _pins(self) -> List[str]:
-        return self.left_pins or self.right_pins
+        rows = max(len(self.left_pins), len(self.right_pins), 1)
+        return self.BODY_W + 2 * STUB, rows * PIN_PITCH + 12
 
     def _pin_y(self, idx: int) -> float:
         return self.y + 12 + idx * PIN_PITCH + PIN_PITCH / 2 - 6
 
     def pin_pos(self, pin):
-        py = self._pin_y(self._pins().index(pin))
-        if self._side() < 0:
-            return (self.x, py, -1)
-        return (self.x + self.w, py, +1)
+        if pin in self.left_pins:
+            return (self.x, self._pin_y(self.left_pins.index(pin)), -1)
+        return (self.x + self.w, self._pin_y(self.right_pins.index(pin)), +1)
 
     def draw(self, sh: Sheet):
-        side = self._side()
-        bx = self.x + (STUB if side < 0 else 0)
+        bx = self.x + STUB
         sh.rect(bx, self.y, self.BODY_W, self.h, width=2)
-        edge = bx if side < 0 else bx + self.BODY_W
-        for i, p in enumerate(self._pins()):
-            py = self._pin_y(i)
-            stub_out = edge + side * STUB
-            sh.line(edge, py, stub_out, py, "black", 2)
-            sh.circle(edge, py, 3, width=2, fill="white")
-            tx = bx + self.BODY_W / 2
-            sh.text(tx, py, p, size=9, anchor="mm")
+        for pins, side, edge in ((self.left_pins, -1, bx),
+                                 (self.right_pins, +1, bx + self.BODY_W)):
+            for i, p in enumerate(pins):
+                py = self._pin_y(i)
+                sh.line(edge, py, edge + side * STUB, py, "black", 2)
+                sh.circle(edge, py, 3, width=2, fill="white")
+                tx = edge + (8 if side < 0 else -8)
+                sh.text(tx, py, p, size=9,
+                        anchor="lm" if side < 0 else "rm")
         self._draw_labels(sh, self.y - 4, self.y + self.h + 3,
                           bx + self.BODY_W / 2)
 
@@ -592,6 +603,13 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
             cls = RailSymbol
         else:
             cls = _SYMBOL_BY_PREFIX.get(info.get("prefix", "U"), ICSymbol)
+        # Production data can use more pins than the idealized symbol has:
+        # a "diode" with 3 pins or a motor fed from both sides is really a
+        # multi-pin device — draw it as an IC-style body so every pin exists.
+        if issubclass(cls, TwoTerminalSymbol) and len(pins_of[n]) > 2:
+            cls = ICSymbol
+        if cls is MotorSymbol and lp and rp:
+            cls = ICSymbol
         symbols[n] = cls(n, info, lp, rp)
 
     # ── column layout ──
