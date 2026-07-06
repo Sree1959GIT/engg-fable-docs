@@ -523,7 +523,12 @@ def _component_ranks(edges: List[dict], nodes: List[str]) -> Dict[str, int]:
         pair_count[(e["src"], e["tgt"])] = pair_count.get((e["src"], e["tgt"]), 0) + 1
     fwd: Dict[str, set] = {n: set() for n in nodes}
     for (a, b), n in pair_count.items():
-        if n >= pair_count.get((b, a), 0) and a != b:
+        if a == b:
+            continue
+        rev = pair_count.get((b, a), 0)
+        # strictly one direction per pair: a tie must NOT create a 2-cycle
+        # (cycles inflate ranks and used to leave huge empty column gaps)
+        if n > rev or (n == rev and a < b):
             fwd[a].add(b)
     rank = {n: 0 for n in nodes}
     for _ in range(len(nodes)):  # relaxation, cycle-safe
@@ -570,11 +575,31 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
     nodes = sorted({e["src"] for e in edges} | {e["tgt"] for e in edges})
     rank = _component_ranks(edges, nodes)
 
+    # Compress rank values: residual cycles can inflate ranks and leave
+    # EMPTY columns — the old renderer drew a huge blank gulf with wires
+    # traversing the whole sheet. Consecutive columns only.
+    remap = {v: i for i, v in enumerate(sorted(set(rank.values())))}
+    rank = {n: remap[v] for n, v in rank.items()}
+
+    # Wrap over-tall rank groups into several adjacent columns so large
+    # harness sheets (100+ components of the same rank) keep a page-like
+    # aspect ratio instead of one endless vertical stack.
+    MAX_PER_COL = 16
+    groups: List[List[str]] = [[] for _ in range(max(rank.values()) + 1)]
+    for n in nodes:
+        groups[rank[n]].append(n)
+    wrapped: List[List[str]] = []
+    for g in groups:
+        for i in range(0, len(g), MAX_PER_COL):
+            wrapped.append(g[i:i + MAX_PER_COL])
+    col_of: Dict[str, int] = {n: ci for ci, col in enumerate(wrapped)
+                              for n in col}
+
     # ── pin side votes: each edge pulls its pin toward the peer's column ──
     side_votes: Dict[Tuple[str, str], List[int]] = {}
     drives: Dict[Tuple[str, str], bool] = {}
     for e in edges:
-        dr = rank[e["tgt"]] - rank[e["src"]]
+        dr = col_of[e["tgt"]] - col_of[e["src"]]
         side_votes.setdefault((e["src"], e["sp"]), []).append(+1 if dr >= 0 else -1)
         side_votes.setdefault((e["tgt"], e["tp"]), []).append(-1 if dr >= 0 else +1)
         drives[(e["src"], e["sp"])] = True
@@ -613,10 +638,8 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
         symbols[n] = cls(n, info, lp, rp)
 
     # ── column layout ──
-    ncols = max(rank.values()) + 1
-    cols: List[List[str]] = [[] for _ in range(ncols)]
-    for n in nodes:
-        cols[rank[n]].append(n)
+    cols: List[List[str]] = [list(c) for c in wrapped]
+    ncols = len(cols)
 
     col_w = [max((symbols[n].w for n in col), default=80) for col in cols]
     col_x: List[float] = []
@@ -680,8 +703,8 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
     for e in sorted(edges, key=_span):
         x1, y1, f1 = symbols[e["src"]].pin_pos(e["sp"])
         x2, y2, f2 = symbols[e["tgt"]].pin_pos(e["tp"])
-        c1 = rank[e["src"]] + (1 if f1 > 0 else 0)
-        c2 = rank[e["tgt"]] + (1 if f2 > 0 else 0)
+        c1 = col_of[e["src"]] + (1 if f1 > 0 else 0)
+        c2 = col_of[e["tgt"]] + (1 if f2 > 0 else 0)
         if c1 == c2:
             t = channels[c1].alloc(y1, y2)
             pts = [(x1, y1), (t, y1), (t, y2), (x2, y2)]
