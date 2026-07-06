@@ -1,0 +1,811 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24928" height="2382" viewBox="0 0 24928 2382">
+<rect width="100%" height="100%" fill="white"/>
+<line x1="24639.0" y1="90.0" x2="24527.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="24527.0" y1="90.0" x2="24527.0" y2="2046" stroke="#444444" stroke-width="2"/>
+<line x1="24527.0" y1="2046" x2="24233.0" y2="2046" stroke="#444444" stroke-width="2"/>
+<line x1="24233.0" y1="2046" x2="24233.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="24233.0" y1="90.0" x2="24215.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24215.0,90.0 24223.0,86.0 24223.0,94.0" fill="#444444" stroke="#444444"/>
+<line x1="23431.0" y1="90.0" x2="23449.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="23449.0" y1="90.0" x2="23449.0" y2="2046" stroke="#444444" stroke-width="2"/>
+<line x1="23449.0" y1="2046" x2="23645.0" y2="2046" stroke="#444444" stroke-width="2"/>
+<line x1="23645.0" y1="2046" x2="23645.0" y2="85.0" stroke="#444444" stroke-width="2"/>
+<line x1="23645.0" y1="85.0" x2="23627.0" y2="85.0" stroke="#444444" stroke-width="2"/>
+<polygon points="23627.0,85.0 23635.0,81.0 23635.0,89.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="116.0" x2="307.0" y2="116.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="116.0" x2="307.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="90.0" x2="419.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,90.0 411.0,86.0 411.0,94.0" fill="#444444" stroke="#444444"/>
+<line x1="24215.0" y1="194.0" x2="24245.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<line x1="24245.0" y1="194.0" x2="24245.0" y2="142.0" stroke="#444444" stroke-width="2"/>
+<line x1="24245.0" y1="142.0" x2="24345.0" y2="142.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24345.0,142.0 24337.0,138.0 24337.0,146.0" fill="#444444" stroke="#444444"/>
+<line x1="246.0" y1="835.0" x2="307.0" y2="835.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="835.0" x2="307.0" y2="904.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="904.0" x2="460.0" y2="904.0" stroke="#444444" stroke-width="2"/>
+<polygon points="460.0,904.0 452.0,900.0 452.0,908.0" fill="#444444" stroke="#444444"/>
+<circle cx="246.0" cy="835.0" r="2.5" fill="black" stroke="black" stroke-width="2"/>
+<line x1="289.0" y1="142.0" x2="307.0" y2="142.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="142.0" x2="307.0" y2="220.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="220.0" x2="419.0" y2="220.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,220.0 411.0,216.0 411.0,224.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="168.0" x2="319.0" y2="168.0" stroke="#444444" stroke-width="2"/>
+<line x1="319.0" y1="168.0" x2="319.0" y2="246.0" stroke="#444444" stroke-width="2"/>
+<line x1="319.0" y1="246.0" x2="419.0" y2="246.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,246.0 411.0,242.0 411.0,250.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="194.0" x2="331.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<line x1="331.0" y1="194.0" x2="331.0" y2="272.0" stroke="#444444" stroke-width="2"/>
+<line x1="331.0" y1="272.0" x2="419.0" y2="272.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,272.0 411.0,268.0 411.0,276.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="220.0" x2="343.0" y2="220.0" stroke="#444444" stroke-width="2"/>
+<line x1="343.0" y1="220.0" x2="343.0" y2="298.0" stroke="#444444" stroke-width="2"/>
+<line x1="343.0" y1="298.0" x2="419.0" y2="298.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,298.0 411.0,294.0 411.0,302.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="246.0" x2="307.0" y2="246.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="246.0" x2="307.0" y2="324.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="324.0" x2="419.0" y2="324.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,324.0 411.0,320.0 411.0,328.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="272.0" x2="319.0" y2="272.0" stroke="#444444" stroke-width="2"/>
+<line x1="319.0" y1="272.0" x2="319.0" y2="350.0" stroke="#444444" stroke-width="2"/>
+<line x1="319.0" y1="350.0" x2="419.0" y2="350.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,350.0 411.0,346.0 411.0,354.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="298.0" x2="331.0" y2="298.0" stroke="#7F7F7F" stroke-width="2" stroke-dasharray="7,5"/>
+<line x1="331.0" y1="298.0" x2="331.0" y2="376.0" stroke="#7F7F7F" stroke-width="2" stroke-dasharray="7,5"/>
+<line x1="331.0" y1="376.0" x2="419.0" y2="376.0" stroke="#7F7F7F" stroke-width="2" stroke-dasharray="7,5"/>
+<polygon points="419.0,376.0 411.0,372.0 411.0,380.0" fill="#7F7F7F" stroke="#7F7F7F"/>
+<circle cx="289.0" cy="298.0" r="2.5" fill="black" stroke="black" stroke-width="2"/>
+<line x1="24509.0" y1="324.0" x2="24539.0" y2="324.0" stroke="#444444" stroke-width="2"/>
+<line x1="24539.0" y1="324.0" x2="24539.0" y2="246.0" stroke="#444444" stroke-width="2"/>
+<line x1="24539.0" y1="246.0" x2="24639.0" y2="246.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24639.0,246.0 24631.0,242.0 24631.0,250.0" fill="#444444" stroke="#444444"/>
+<line x1="23431.0" y1="194.0" x2="23461.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<line x1="23461.0" y1="194.0" x2="23461.0" y2="2058" stroke="#444444" stroke-width="2"/>
+<line x1="23461.0" y1="2058" x2="24257.0" y2="2058" stroke="#444444" stroke-width="2"/>
+<line x1="24257.0" y1="2058" x2="24257.0" y2="116.0" stroke="#444444" stroke-width="2"/>
+<line x1="24257.0" y1="116.0" x2="24345.0" y2="116.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24345.0,116.0 24337.0,112.0 24337.0,120.0" fill="#444444" stroke="#444444"/>
+<line x1="24345.0" y1="116.0" x2="24269.0" y2="116.0" stroke="#444444" stroke-width="2"/>
+<line x1="24269.0" y1="116.0" x2="24269.0" y2="2070" stroke="#444444" stroke-width="2"/>
+<line x1="24269.0" y1="2070" x2="23939.0" y2="2070" stroke="#444444" stroke-width="2"/>
+<line x1="23939.0" y1="2070" x2="23939.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<line x1="23939.0" y1="194.0" x2="23921.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<polygon points="23921.0,194.0 23929.0,190.0 23929.0,198.0" fill="#444444" stroke="#444444"/>
+<line x1="23921.0" y1="194.0" x2="23951.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<line x1="23951.0" y1="194.0" x2="23951.0" y2="2082" stroke="#444444" stroke-width="2"/>
+<line x1="23951.0" y1="2082" x2="24551.0" y2="2082" stroke="#444444" stroke-width="2"/>
+<line x1="24551.0" y1="2082" x2="24551.0" y2="116.0" stroke="#444444" stroke-width="2"/>
+<line x1="24551.0" y1="116.0" x2="24639.0" y2="116.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24639.0,116.0 24631.0,112.0 24631.0,120.0" fill="#444444" stroke="#444444"/>
+<line x1="24639.0" y1="116.0" x2="24563.0" y2="116.0" stroke="#444444" stroke-width="2"/>
+<line x1="24563.0" y1="116.0" x2="24563.0" y2="2094" stroke="#444444" stroke-width="2"/>
+<line x1="24563.0" y1="2094" x2="24281.0" y2="2094" stroke="#444444" stroke-width="2"/>
+<line x1="24281.0" y1="2094" x2="24281.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<line x1="24281.0" y1="194.0" x2="24215.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24215.0,194.0 24223.0,190.0 24223.0,198.0" fill="#444444" stroke="#444444"/>
+<line x1="24345.0" y1="168.0" x2="24293.0" y2="168.0" stroke="#444444" stroke-width="2"/>
+<line x1="24293.0" y1="168.0" x2="24293.0" y2="2106" stroke="#444444" stroke-width="2"/>
+<line x1="24293.0" y1="2106" x2="23963.0" y2="2106" stroke="#444444" stroke-width="2"/>
+<line x1="23963.0" y1="2106" x2="23963.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="23963.0" y1="90.0" x2="23921.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<polygon points="23921.0,90.0 23929.0,86.0 23929.0,94.0" fill="#444444" stroke="#444444"/>
+<line x1="246.0" y1="921.0" x2="307.0" y2="921.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="921.0" x2="307.0" y2="2046" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="2046" x2="601.0" y2="2046" stroke="#444444" stroke-width="2"/>
+<line x1="601.0" y1="2046" x2="601.0" y2="1018.0" stroke="#444444" stroke-width="2"/>
+<line x1="601.0" y1="1018.0" x2="583.0" y2="1018.0" stroke="#444444" stroke-width="2"/>
+<polygon points="583.0,1018.0 591.0,1014.0 591.0,1022.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="90.0" x2="343.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="343.0" y1="90.0" x2="343.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<line x1="343.0" y1="194.0" x2="419.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,194.0 411.0,190.0 411.0,198.0" fill="#444444" stroke="#444444"/>
+<line x1="23921.0" y1="90.0" x2="23975.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="23975.0" y1="90.0" x2="23975.0" y2="2118" stroke="#444444" stroke-width="2"/>
+<line x1="23975.0" y1="2118" x2="24305.0" y2="2118" stroke="#444444" stroke-width="2"/>
+<line x1="24305.0" y1="2118" x2="24305.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<line x1="24305.0" y1="194.0" x2="24345.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24345.0,194.0 24337.0,190.0 24337.0,198.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="324.0" x2="343.0" y2="324.0" stroke="#444444" stroke-width="2"/>
+<line x1="343.0" y1="324.0" x2="343.0" y2="480.0" stroke="#444444" stroke-width="2"/>
+<line x1="343.0" y1="480.0" x2="419.0" y2="480.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,480.0 411.0,476.0 411.0,484.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="350.0" x2="307.0" y2="350.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="350.0" x2="307.0" y2="506.0" stroke="#444444" stroke-width="2"/>
+<line x1="307.0" y1="506.0" x2="419.0" y2="506.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,506.0 411.0,502.0 411.0,510.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="376.0" x2="319.0" y2="376.0" stroke="#444444" stroke-width="2"/>
+<line x1="319.0" y1="376.0" x2="319.0" y2="532.0" stroke="#444444" stroke-width="2"/>
+<line x1="319.0" y1="532.0" x2="419.0" y2="532.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,532.0 411.0,528.0 411.0,536.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="402.0" x2="331.0" y2="402.0" stroke="#444444" stroke-width="2"/>
+<line x1="331.0" y1="402.0" x2="331.0" y2="558.0" stroke="#444444" stroke-width="2"/>
+<line x1="331.0" y1="558.0" x2="419.0" y2="558.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,558.0 411.0,554.0 411.0,562.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="428.0" x2="355.0" y2="428.0" stroke="#444444" stroke-width="2"/>
+<line x1="355.0" y1="428.0" x2="355.0" y2="584.0" stroke="#444444" stroke-width="2"/>
+<line x1="355.0" y1="584.0" x2="419.0" y2="584.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,584.0 411.0,580.0 411.0,588.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="454.0" x2="367.0" y2="454.0" stroke="#444444" stroke-width="2"/>
+<line x1="367.0" y1="454.0" x2="367.0" y2="610.0" stroke="#444444" stroke-width="2"/>
+<line x1="367.0" y1="610.0" x2="419.0" y2="610.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,610.0 411.0,606.0 411.0,614.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="480.0" x2="379.0" y2="480.0" stroke="#444444" stroke-width="2"/>
+<line x1="379.0" y1="480.0" x2="379.0" y2="636.0" stroke="#444444" stroke-width="2"/>
+<line x1="379.0" y1="636.0" x2="419.0" y2="636.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,636.0 411.0,632.0 411.0,640.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="506.0" x2="343.0" y2="506.0" stroke="#444444" stroke-width="2"/>
+<line x1="343.0" y1="506.0" x2="343.0" y2="662.0" stroke="#444444" stroke-width="2"/>
+<line x1="343.0" y1="662.0" x2="419.0" y2="662.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,662.0 411.0,658.0 411.0,666.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="610.0" x2="319.0" y2="610.0" stroke="#444444" stroke-width="2"/>
+<line x1="319.0" y1="610.0" x2="319.0" y2="2058" stroke="#444444" stroke-width="2"/>
+<line x1="319.0" y1="2058" x2="613.0" y2="2058" stroke="#444444" stroke-width="2"/>
+<line x1="613.0" y1="2058" x2="613.0" y2="791.0" stroke="#444444" stroke-width="2"/>
+<line x1="613.0" y1="791.0" x2="556.0" y2="791.0" stroke="#444444" stroke-width="2"/>
+<polygon points="556.0,791.0 564.0,787.0 564.0,795.0" fill="#444444" stroke="#444444"/>
+<line x1="24509.0" y1="298.0" x2="24575.0" y2="298.0" stroke="#444444" stroke-width="2"/>
+<line x1="24575.0" y1="298.0" x2="24575.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="24575.0" y1="90.0" x2="24639.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24639.0,90.0 24631.0,86.0 24631.0,94.0" fill="#444444" stroke="#444444"/>
+<line x1="24345.0" y1="90.0" x2="24317.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="24317.0" y1="90.0" x2="24317.0" y2="298.0" stroke="#444444" stroke-width="2"/>
+<line x1="24317.0" y1="298.0" x2="23921.0" y2="298.0" stroke="#444444" stroke-width="2"/>
+<polygon points="23921.0,298.0 23929.0,294.0 23929.0,302.0" fill="#444444" stroke="#444444"/>
+<line x1="23921.0" y1="298.0" x2="23987.0" y2="298.0" stroke="#444444" stroke-width="2"/>
+<line x1="23987.0" y1="298.0" x2="23987.0" y2="2094" stroke="#444444" stroke-width="2"/>
+<line x1="23987.0" y1="2094" x2="23473.0" y2="2094" stroke="#444444" stroke-width="2"/>
+<line x1="23473.0" y1="2094" x2="23473.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="23473.0" y1="90.0" x2="23431.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<polygon points="23431.0,90.0 23439.0,86.0 23439.0,94.0" fill="#444444" stroke="#444444"/>
+<line x1="23757.0" y1="402.0" x2="23657.0" y2="402.0" stroke="#444444" stroke-width="2"/>
+<line x1="23657.0" y1="402.0" x2="23657.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<line x1="23657.0" y1="194.0" x2="23431.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<polygon points="23431.0,194.0 23439.0,190.0 23439.0,198.0" fill="#444444" stroke="#444444"/>
+<line x1="24215.0" y1="90.0" x2="24329.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="24329.0" y1="90.0" x2="24329.0" y2="2130" stroke="#444444" stroke-width="2"/>
+<line x1="24329.0" y1="2130" x2="24575.0" y2="2130" stroke="#444444" stroke-width="2"/>
+<line x1="24575.0" y1="2130" x2="24575.0" y2="324.0" stroke="#444444" stroke-width="2"/>
+<line x1="24575.0" y1="324.0" x2="24509.0" y2="324.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24509.0,324.0 24517.0,320.0 24517.0,328.0" fill="#444444" stroke="#444444"/>
+<line x1="23627.0" y1="85.0" x2="23669.0" y2="85.0" stroke="#444444" stroke-width="2"/>
+<line x1="23669.0" y1="85.0" x2="23669.0" y2="402.0" stroke="#444444" stroke-width="2"/>
+<line x1="23669.0" y1="402.0" x2="23757.0" y2="402.0" stroke="#444444" stroke-width="2"/>
+<polygon points="23757.0,402.0 23749.0,398.0 23749.0,406.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="298.0" x2="391.0" y2="298.0" stroke="#7F7F7F" stroke-width="2" stroke-dasharray="7,5"/>
+<line x1="391.0" y1="298.0" x2="391.0" y2="688.0" stroke="#7F7F7F" stroke-width="2" stroke-dasharray="7,5"/>
+<line x1="391.0" y1="688.0" x2="419.0" y2="688.0" stroke="#7F7F7F" stroke-width="2" stroke-dasharray="7,5"/>
+<polygon points="419.0,688.0 411.0,684.0 411.0,692.0" fill="#7F7F7F" stroke="#7F7F7F"/>
+<circle cx="289.0" cy="298.0" r="2.5" fill="black" stroke="black" stroke-width="2"/>
+<line x1="289.0" y1="1206.0" x2="331.0" y2="1206.0" stroke="#444444" stroke-width="2"/>
+<line x1="331.0" y1="1206.0" x2="331.0" y2="2070" stroke="#444444" stroke-width="2"/>
+<line x1="331.0" y1="2070" x2="625.0" y2="2070" stroke="#444444" stroke-width="2"/>
+<line x1="625.0" y1="2070" x2="625.0" y2="1668.0" stroke="#444444" stroke-width="2"/>
+<line x1="625.0" y1="1668.0" x2="583.0" y2="1668.0" stroke="#444444" stroke-width="2"/>
+<polygon points="583.0,1668.0 591.0,1664.0 591.0,1672.0" fill="#444444" stroke="#444444"/>
+<line x1="262.0" y1="1309.0" x2="343.0" y2="1309.0" stroke="#444444" stroke-width="2"/>
+<line x1="343.0" y1="1309.0" x2="343.0" y2="2082" stroke="#444444" stroke-width="2"/>
+<line x1="343.0" y1="2082" x2="637.0" y2="2082" stroke="#444444" stroke-width="2"/>
+<line x1="637.0" y1="2082" x2="637.0" y2="1798.0" stroke="#444444" stroke-width="2"/>
+<line x1="637.0" y1="1798.0" x2="583.0" y2="1798.0" stroke="#444444" stroke-width="2"/>
+<polygon points="583.0,1798.0 591.0,1794.0 591.0,1802.0" fill="#444444" stroke="#444444"/>
+<circle cx="262.0" cy="1309.0" r="2.5" fill="black" stroke="black" stroke-width="2"/>
+<line x1="289.0" y1="1412.0" x2="355.0" y2="1412.0" stroke="#444444" stroke-width="2"/>
+<line x1="355.0" y1="1412.0" x2="355.0" y2="2094" stroke="#444444" stroke-width="2"/>
+<line x1="355.0" y1="2094" x2="649.0" y2="2094" stroke="#444444" stroke-width="2"/>
+<line x1="649.0" y1="2094" x2="649.0" y2="1902.0" stroke="#444444" stroke-width="2"/>
+<line x1="649.0" y1="1902.0" x2="583.0" y2="1902.0" stroke="#444444" stroke-width="2"/>
+<polygon points="583.0,1902.0 591.0,1898.0 591.0,1906.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="1438.0" x2="367.0" y2="1438.0" stroke="#444444" stroke-width="2"/>
+<line x1="367.0" y1="1438.0" x2="367.0" y2="2106" stroke="#444444" stroke-width="2"/>
+<line x1="367.0" y1="2106" x2="661.0" y2="2106" stroke="#444444" stroke-width="2"/>
+<line x1="661.0" y1="2106" x2="661.0" y2="1928.0" stroke="#444444" stroke-width="2"/>
+<line x1="661.0" y1="1928.0" x2="583.0" y2="1928.0" stroke="#444444" stroke-width="2"/>
+<polygon points="583.0,1928.0 591.0,1924.0 591.0,1932.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="1464.0" x2="673.0" y2="1464.0" stroke="#444444" stroke-width="2"/>
+<line x1="673.0" y1="1464.0" x2="673.0" y2="1954.0" stroke="#444444" stroke-width="2"/>
+<line x1="673.0" y1="1954.0" x2="583.0" y2="1954.0" stroke="#444444" stroke-width="2"/>
+<polygon points="583.0,1954.0 591.0,1950.0 591.0,1958.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="1490.0" x2="379.0" y2="1490.0" stroke="#444444" stroke-width="2"/>
+<line x1="379.0" y1="1490.0" x2="379.0" y2="2118" stroke="#444444" stroke-width="2"/>
+<line x1="379.0" y1="2118" x2="673.0" y2="2118" stroke="#444444" stroke-width="2"/>
+<line x1="673.0" y1="2118" x2="673.0" y2="1980.0" stroke="#444444" stroke-width="2"/>
+<line x1="673.0" y1="1980.0" x2="583.0" y2="1980.0" stroke="#444444" stroke-width="2"/>
+<polygon points="583.0,1980.0 591.0,1976.0 591.0,1984.0" fill="#444444" stroke="#444444"/>
+<line x1="246.0" y1="1007.0" x2="391.0" y2="1007.0" stroke="#444444" stroke-width="2"/>
+<line x1="391.0" y1="1007.0" x2="391.0" y2="1512.0" stroke="#444444" stroke-width="2"/>
+<line x1="391.0" y1="1512.0" x2="419.0" y2="1512.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,1512.0 411.0,1508.0 411.0,1516.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="1102.0" x2="403.0" y2="1102.0" stroke="#444444" stroke-width="2"/>
+<line x1="403.0" y1="1102.0" x2="403.0" y2="2130" stroke="#444444" stroke-width="2"/>
+<line x1="403.0" y1="2130" x2="685.0" y2="2130" stroke="#444444" stroke-width="2"/>
+<line x1="685.0" y1="2130" x2="685.0" y2="1642.0" stroke="#444444" stroke-width="2"/>
+<line x1="685.0" y1="1642.0" x2="583.0" y2="1642.0" stroke="#444444" stroke-width="2"/>
+<polygon points="583.0,1642.0 591.0,1638.0 591.0,1646.0" fill="#444444" stroke="#444444"/>
+<line x1="556.0" y1="791.0" x2="697.0" y2="791.0" stroke="#444444" stroke-width="2"/>
+<line x1="697.0" y1="791.0" x2="697.0" y2="2142" stroke="#444444" stroke-width="2"/>
+<line x1="697.0" y1="2142" x2="24587.0" y2="2142" stroke="#444444" stroke-width="2"/>
+<line x1="24587.0" y1="2142" x2="24587.0" y2="220.0" stroke="#444444" stroke-width="2"/>
+<line x1="24587.0" y1="220.0" x2="24639.0" y2="220.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24639.0,220.0 24631.0,216.0 24631.0,224.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="740.0" x2="415.0" y2="740.0" stroke="#444444" stroke-width="2"/>
+<line x1="415.0" y1="740.0" x2="415.0" y2="2154" stroke="#444444" stroke-width="2"/>
+<line x1="415.0" y1="2154" x2="24341.0" y2="2154" stroke="#444444" stroke-width="2"/>
+<line x1="24341.0" y1="2154" x2="24341.0" y2="168.0" stroke="#444444" stroke-width="2"/>
+<line x1="24341.0" y1="168.0" x2="24345.0" y2="168.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24345.0,168.0 24337.0,164.0 24337.0,172.0" fill="#444444" stroke="#444444"/>
+<line x1="289.0" y1="714.0" x2="427.0" y2="714.0" stroke="#444444" stroke-width="2"/>
+<line x1="427.0" y1="714.0" x2="427.0" y2="2166" stroke="#444444" stroke-width="2"/>
+<line x1="427.0" y1="2166" x2="24353.0" y2="2166" stroke="#444444" stroke-width="2"/>
+<line x1="24353.0" y1="2166" x2="24353.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="24353.0" y1="90.0" x2="24345.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24345.0,90.0 24337.0,86.0 24337.0,94.0" fill="#444444" stroke="#444444"/>
+<line x1="246.0" y1="835.0" x2="439.0" y2="835.0" stroke="#444444" stroke-width="2"/>
+<line x1="439.0" y1="835.0" x2="439.0" y2="1512.0" stroke="#444444" stroke-width="2"/>
+<line x1="439.0" y1="1512.0" x2="419.0" y2="1512.0" stroke="#444444" stroke-width="2"/>
+<polygon points="419.0,1512.0 411.0,1508.0 411.0,1516.0" fill="#444444" stroke="#444444"/>
+<circle cx="246.0" cy="835.0" r="2.5" fill="black" stroke="black" stroke-width="2"/>
+<line x1="419.0" y1="1512.0" x2="451.0" y2="1512.0" stroke="#444444" stroke-width="2"/>
+<line x1="451.0" y1="1512.0" x2="451.0" y2="2178" stroke="#444444" stroke-width="2"/>
+<line x1="451.0" y1="2178" x2="709.0" y2="2178" stroke="#444444" stroke-width="2"/>
+<line x1="709.0" y1="2178" x2="709.0" y2="584.0" stroke="#444444" stroke-width="2"/>
+<line x1="709.0" y1="584.0" x2="713.0" y2="584.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,584.0 705.0,580.0 705.0,588.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1018.0" x2="625.0" y2="1018.0" stroke="#444444" stroke-width="2"/>
+<line x1="625.0" y1="1018.0" x2="625.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<line x1="625.0" y1="90.0" x2="713.0" y2="90.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,90.0 705.0,86.0 705.0,94.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1044.0" x2="637.0" y2="1044.0" stroke="#444444" stroke-width="2"/>
+<line x1="637.0" y1="1044.0" x2="637.0" y2="116.0" stroke="#444444" stroke-width="2"/>
+<line x1="637.0" y1="116.0" x2="713.0" y2="116.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,116.0 705.0,112.0 705.0,120.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1070.0" x2="649.0" y2="1070.0" stroke="#444444" stroke-width="2"/>
+<line x1="649.0" y1="1070.0" x2="649.0" y2="142.0" stroke="#444444" stroke-width="2"/>
+<line x1="649.0" y1="142.0" x2="713.0" y2="142.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,142.0 705.0,138.0 705.0,146.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1096.0" x2="661.0" y2="1096.0" stroke="#444444" stroke-width="2"/>
+<line x1="661.0" y1="1096.0" x2="661.0" y2="168.0" stroke="#444444" stroke-width="2"/>
+<line x1="661.0" y1="168.0" x2="713.0" y2="168.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,168.0 705.0,164.0 705.0,172.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1122.0" x2="673.0" y2="1122.0" stroke="#444444" stroke-width="2"/>
+<line x1="673.0" y1="1122.0" x2="673.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<line x1="673.0" y1="194.0" x2="713.0" y2="194.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,194.0 705.0,190.0 705.0,198.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1148.0" x2="685.0" y2="1148.0" stroke="#444444" stroke-width="2"/>
+<line x1="685.0" y1="1148.0" x2="685.0" y2="220.0" stroke="#444444" stroke-width="2"/>
+<line x1="685.0" y1="220.0" x2="713.0" y2="220.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,220.0 705.0,216.0 705.0,224.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1174.0" x2="721.0" y2="1174.0" stroke="#444444" stroke-width="2"/>
+<line x1="721.0" y1="1174.0" x2="721.0" y2="246.0" stroke="#444444" stroke-width="2"/>
+<line x1="721.0" y1="246.0" x2="713.0" y2="246.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,246.0 705.0,242.0 705.0,250.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1200.0" x2="733.0" y2="1200.0" stroke="#444444" stroke-width="2"/>
+<line x1="733.0" y1="1200.0" x2="733.0" y2="272.0" stroke="#444444" stroke-width="2"/>
+<line x1="733.0" y1="272.0" x2="713.0" y2="272.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,272.0 705.0,268.0 705.0,276.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1226.0" x2="745.0" y2="1226.0" stroke="#444444" stroke-width="2"/>
+<line x1="745.0" y1="1226.0" x2="745.0" y2="298.0" stroke="#444444" stroke-width="2"/>
+<line x1="745.0" y1="298.0" x2="713.0" y2="298.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,298.0 705.0,294.0 705.0,302.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1252.0" x2="757.0" y2="1252.0" stroke="#444444" stroke-width="2"/>
+<line x1="757.0" y1="1252.0" x2="757.0" y2="324.0" stroke="#444444" stroke-width="2"/>
+<line x1="757.0" y1="324.0" x2="713.0" y2="324.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,324.0 705.0,320.0 705.0,328.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1278.0" x2="769.0" y2="1278.0" stroke="#444444" stroke-width="2"/>
+<line x1="769.0" y1="1278.0" x2="769.0" y2="350.0" stroke="#444444" stroke-width="2"/>
+<line x1="769.0" y1="350.0" x2="713.0" y2="350.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,350.0 705.0,346.0 705.0,354.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1304.0" x2="781.0" y2="1304.0" stroke="#444444" stroke-width="2"/>
+<line x1="781.0" y1="1304.0" x2="781.0" y2="376.0" stroke="#444444" stroke-width="2"/>
+<line x1="781.0" y1="376.0" x2="713.0" y2="376.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,376.0 705.0,372.0 705.0,380.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1330.0" x2="793.0" y2="1330.0" stroke="#444444" stroke-width="2"/>
+<line x1="793.0" y1="1330.0" x2="793.0" y2="402.0" stroke="#444444" stroke-width="2"/>
+<line x1="793.0" y1="402.0" x2="713.0" y2="402.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,402.0 705.0,398.0 705.0,406.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1356.0" x2="805.0" y2="1356.0" stroke="#444444" stroke-width="2"/>
+<line x1="805.0" y1="1356.0" x2="805.0" y2="428.0" stroke="#444444" stroke-width="2"/>
+<line x1="805.0" y1="428.0" x2="713.0" y2="428.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,428.0 705.0,424.0 705.0,432.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1382.0" x2="817.0" y2="1382.0" stroke="#444444" stroke-width="2"/>
+<line x1="817.0" y1="1382.0" x2="817.0" y2="454.0" stroke="#444444" stroke-width="2"/>
+<line x1="817.0" y1="454.0" x2="713.0" y2="454.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,454.0 705.0,450.0 705.0,458.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1408.0" x2="829.0" y2="1408.0" stroke="#444444" stroke-width="2"/>
+<line x1="829.0" y1="1408.0" x2="829.0" y2="480.0" stroke="#444444" stroke-width="2"/>
+<line x1="829.0" y1="480.0" x2="713.0" y2="480.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,480.0 705.0,476.0 705.0,484.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1798.0" x2="841.0" y2="1798.0" stroke="#444444" stroke-width="2"/>
+<line x1="841.0" y1="1798.0" x2="841.0" y2="870.0" stroke="#444444" stroke-width="2"/>
+<line x1="841.0" y1="870.0" x2="713.0" y2="870.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,870.0 705.0,866.0 705.0,874.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1902.0" x2="853.0" y2="1902.0" stroke="#444444" stroke-width="2"/>
+<line x1="853.0" y1="1902.0" x2="853.0" y2="974.0" stroke="#444444" stroke-width="2"/>
+<line x1="853.0" y1="974.0" x2="713.0" y2="974.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,974.0 705.0,970.0 705.0,978.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1928.0" x2="865.0" y2="1928.0" stroke="#444444" stroke-width="2"/>
+<line x1="865.0" y1="1928.0" x2="865.0" y2="1000.0" stroke="#444444" stroke-width="2"/>
+<line x1="865.0" y1="1000.0" x2="713.0" y2="1000.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,1000.0 705.0,996.0 705.0,1004.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1954.0" x2="877.0" y2="1954.0" stroke="#444444" stroke-width="2"/>
+<line x1="877.0" y1="1954.0" x2="877.0" y2="1026.0" stroke="#444444" stroke-width="2"/>
+<line x1="877.0" y1="1026.0" x2="713.0" y2="1026.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,1026.0 705.0,1022.0 705.0,1030.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1980.0" x2="889.0" y2="1980.0" stroke="#444444" stroke-width="2"/>
+<line x1="889.0" y1="1980.0" x2="889.0" y2="1052.0" stroke="#444444" stroke-width="2"/>
+<line x1="889.0" y1="1052.0" x2="713.0" y2="1052.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,1052.0 705.0,1048.0 705.0,1056.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1616.0" x2="901.0" y2="1616.0" stroke="#444444" stroke-width="2"/>
+<line x1="901.0" y1="1616.0" x2="901.0" y2="688.0" stroke="#444444" stroke-width="2"/>
+<line x1="901.0" y1="688.0" x2="713.0" y2="688.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,688.0 705.0,684.0 705.0,692.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1642.0" x2="913.0" y2="1642.0" stroke="#444444" stroke-width="2"/>
+<line x1="913.0" y1="1642.0" x2="913.0" y2="714.0" stroke="#444444" stroke-width="2"/>
+<line x1="913.0" y1="714.0" x2="713.0" y2="714.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,714.0 705.0,710.0 705.0,718.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1668.0" x2="925.0" y2="1668.0" stroke="#444444" stroke-width="2"/>
+<line x1="925.0" y1="1668.0" x2="925.0" y2="740.0" stroke="#444444" stroke-width="2"/>
+<line x1="925.0" y1="740.0" x2="713.0" y2="740.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,740.0 705.0,736.0 705.0,744.0" fill="#444444" stroke="#444444"/>
+<line x1="583.0" y1="1694.0" x2="937.0" y2="1694.0" stroke="#444444" stroke-width="2"/>
+<line x1="937.0" y1="1694.0" x2="937.0" y2="766.0" stroke="#444444" stroke-width="2"/>
+<line x1="937.0" y1="766.0" x2="713.0" y2="766.0" stroke="#444444" stroke-width="2"/>
+<polygon points="713.0,766.0 705.0,762.0 705.0,770.0" fill="#444444" stroke="#444444"/>
+<line x1="262.0" y1="1309.0" x2="463.0" y2="1309.0" stroke="#444444" stroke-width="2"/>
+<line x1="463.0" y1="1309.0" x2="463.0" y2="2190" stroke="#444444" stroke-width="2"/>
+<line x1="463.0" y1="2190" x2="24599.0" y2="2190" stroke="#444444" stroke-width="2"/>
+<line x1="24599.0" y1="2190" x2="24599.0" y2="298.0" stroke="#444444" stroke-width="2"/>
+<line x1="24599.0" y1="298.0" x2="24509.0" y2="298.0" stroke="#444444" stroke-width="2"/>
+<polygon points="24509.0,298.0 24517.0,294.0 24517.0,302.0" fill="#444444" stroke="#444444"/>
+<circle cx="262.0" cy="1309.0" r="2.5" fill="black" stroke="black" stroke-width="2"/>
+<text x="24380.0" y="2039" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">B3_TAP1</text>
+<text x="23547.0" y="2039" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">ISDF-10-D_M</text>
+<text x="363.0" y="83.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U1_E</text>
+<text x="24295.0" y="135.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">SFDB2_NET</text>
+<text x="383.5" y="897.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB25_NET</text>
+<text x="363.0" y="213.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U2_S</text>
+<text x="369.0" y="239.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U2_E</text>
+<text x="375.0" y="265.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U3_S</text>
+<text x="381.0" y="291.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U3_E</text>
+<text x="363.0" y="317.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U4_S</text>
+<text x="369.0" y="343.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U4_E</text>
+<text x="375.0" y="369.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#7F7F7F" text-anchor="middle" dominant-baseline="central">GND</text>
+<text x="24589.0" y="239.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TAP1_JP1</text>
+<text x="23859.0" y="2051" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U4_IP</text>
+<text x="24104.0" y="2063" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">B3JX2_IP3</text>
+<text x="24251.0" y="2075" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TAP2_NET</text>
+<text x="24422.0" y="2087" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">B3_TAP2</text>
+<text x="24128.0" y="2099" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">B3JX2_OP7</text>
+<text x="454.0" y="2039" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37_NET</text>
+<text x="381.0" y="187.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U1_S</text>
+<text x="24206.0" y="2111" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">B3-JP4_JX1</text>
+<text x="381.0" y="473.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U1_S</text>
+<text x="363.0" y="499.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U1_E</text>
+<text x="369.0" y="525.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U2_S</text>
+<text x="375.0" y="551.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U2_E</text>
+<text x="322.0" y="421.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U3_S</text>
+<text x="328.0" y="447.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U3_E</text>
+<text x="334.0" y="473.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U4_S</text>
+<text x="381.0" y="655.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U4_E</text>
+<text x="524.8" y="2051" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">B3-XYLPT2_NET</text>
+<text x="24542.0" y="291.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TAP1_NET</text>
+<text x="24119.0" y="291.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">B3JX2_OP5</text>
+<text x="23730.0" y="2087" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">B3-JP2_JX1</text>
+<text x="23544.0" y="187.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U3_IP</text>
+<text x="24452.0" y="2123" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">SFDB15F_NET</text>
+<text x="23713.0" y="395.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">cc03r-2830-01_g</text>
+<text x="340.0" y="291.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#7F7F7F" text-anchor="middle" dominant-baseline="central">GND</text>
+<text x="419.2" y="2063" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">EMU1_NET</text>
+<text x="490.0" y="2075" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">JP6_NET</text>
+<text x="443.2" y="2087" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TMS</text>
+<text x="514.0" y="2099" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TDO</text>
+<text x="481.0" y="1457.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TDI</text>
+<text x="467.2" y="2111" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TCK</text>
+<text x="318.5" y="1000.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB50_NET</text>
+<text x="544.0" y="2123" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">EMU0_NET</text>
+<text x="12642.0" y="2135" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">XYLPT2_NET</text>
+<text x="12378.0" y="2147" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">BHJP2_B</text>
+<text x="7604.8" y="2159" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">BHJP2_A</text>
+<text x="342.5" y="828.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB25_NET</text>
+<text x="580.0" y="2171" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">WITH_75</text>
+<text x="669.0" y="83.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_1</text>
+<text x="675.0" y="109.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_2</text>
+<text x="616.0" y="1063.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_3</text>
+<text x="622.0" y="1089.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_4</text>
+<text x="628.0" y="1115.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_5</text>
+<text x="634.0" y="1141.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_6</text>
+<text x="652.0" y="1167.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_7</text>
+<text x="658.0" y="1193.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_8</text>
+<text x="664.0" y="1219.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_9</text>
+<text x="670.0" y="1245.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_10</text>
+<text x="676.0" y="1271.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_11</text>
+<text x="682.0" y="1297.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_12</text>
+<text x="688.0" y="1323.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_13</text>
+<text x="694.0" y="1349.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_14</text>
+<text x="700.0" y="1375.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_15</text>
+<text x="706.0" y="1401.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">DB37B_16</text>
+<text x="712.0" y="1791.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">B3-JP6-JTFPG_NET</text>
+<text x="718.0" y="1895.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TMS</text>
+<text x="724.0" y="1921.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TDO</text>
+<text x="730.0" y="1947.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TDI</text>
+<text x="736.0" y="1973.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">TCK</text>
+<text x="742.0" y="1609.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U4-B1_2</text>
+<text x="748.0" y="1635.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U4-B1_3</text>
+<text x="754.0" y="1661.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U4-B1_4</text>
+<text x="760.0" y="1687.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">U4-B1_5</text>
+<text x="12531.0" y="2183" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#444444" text-anchor="middle" dominant-baseline="central">JP6_NET</text>
+<rect x="147.0" y="70" width="120" height="456" fill="none" stroke="black" stroke-width="2"/>
+<line x1="267.0" y1="90.0" x2="289.0" y2="90.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="90.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">0</text>
+<line x1="267.0" y1="116.0" x2="289.0" y2="116.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="116.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">1</text>
+<line x1="267.0" y1="142.0" x2="289.0" y2="142.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="142.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">2</text>
+<line x1="267.0" y1="168.0" x2="289.0" y2="168.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="168.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">3</text>
+<line x1="267.0" y1="194.0" x2="289.0" y2="194.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="194.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">4</text>
+<line x1="267.0" y1="220.0" x2="289.0" y2="220.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="220.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">5</text>
+<line x1="267.0" y1="246.0" x2="289.0" y2="246.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="246.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">6</text>
+<line x1="267.0" y1="272.0" x2="289.0" y2="272.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="272.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">7</text>
+<line x1="267.0" y1="298.0" x2="289.0" y2="298.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="298.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">GND</text>
+<line x1="267.0" y1="324.0" x2="289.0" y2="324.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="324.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">8</text>
+<line x1="267.0" y1="350.0" x2="289.0" y2="350.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="350.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">9</text>
+<line x1="267.0" y1="376.0" x2="289.0" y2="376.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="376.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">10</text>
+<line x1="267.0" y1="402.0" x2="289.0" y2="402.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="402.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">11</text>
+<line x1="267.0" y1="428.0" x2="289.0" y2="428.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="428.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">12</text>
+<line x1="267.0" y1="454.0" x2="289.0" y2="454.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="454.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">13</text>
+<line x1="267.0" y1="480.0" x2="289.0" y2="480.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="480.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">14</text>
+<line x1="267.0" y1="506.0" x2="289.0" y2="506.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="506.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">15</text>
+<text x="207.0" y="66" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B2GPIO</text>
+<text x="207.0" y="529" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="735.0" y="850" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="713.0" y1="870.0" x2="735.0" y2="870.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="870.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">IP2</text>
+<text x="795.0" y="846" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B2JX1</text>
+<text x="795.0" y="893" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="441.0" y="70" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="419.0" y1="90.0" x2="441.0" y2="90.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="90.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">4</text>
+<text x="501.0" y="66" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B2JX1-CR</text>
+<text x="501.0" y="113" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="24661.0" y="70" width="120" height="66" fill="none" stroke="black" stroke-width="2"/>
+<line x1="24639.0" y1="90.0" x2="24661.0" y2="90.0" stroke="black" stroke-width="2"/>
+<text x="24666.0" y="90.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">TAP1</text>
+<line x1="24639.0" y1="116.0" x2="24661.0" y2="116.0" stroke="black" stroke-width="2"/>
+<text x="24666.0" y="116.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">TAP2</text>
+<text x="24721.0" y="66" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B3</text>
+<text x="24721.0" y="139" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="23779.0" y="278" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="23899.0" y1="298.0" x2="23921.0" y2="298.0" stroke="black" stroke-width="2"/>
+<text x="23894.0" y="298.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">JX1</text>
+<text x="23839.0" y="274" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B3-JP2</text>
+<text x="23839.0" y="321" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="23779.0" y="70" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="23899.0" y1="90.0" x2="23921.0" y2="90.0" stroke="black" stroke-width="2"/>
+<text x="23894.0" y="90.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">JX1</text>
+<text x="23839.0" y="66" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B3-JP4</text>
+<text x="23839.0" y="113" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="441.0" y="1778" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="561.0" y1="1798.0" x2="583.0" y2="1798.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1798.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<text x="501.0" y="1774" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B3-JP6-JTFPG</text>
+<text x="501.0" y="1821" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="147.0" y="590" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="267.0" y1="610.0" x2="289.0" y2="610.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="610.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<text x="207.0" y="586" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B3-XYLPT2</text>
+<text x="207.0" y="633" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="24661.0" y="200" width="120" height="66" fill="none" stroke="black" stroke-width="2"/>
+<line x1="24639.0" y1="220.0" x2="24661.0" y2="220.0" stroke="black" stroke-width="2"/>
+<text x="24666.0" y="220.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">OP1</text>
+<line x1="24639.0" y1="246.0" x2="24661.0" y2="246.0" stroke="black" stroke-width="2"/>
+<text x="24666.0" y="246.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">OP2</text>
+<text x="24721.0" y="196" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B3JX1</text>
+<text x="24721.0" y="269" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="441.0" y="174" width="120" height="222" fill="none" stroke="black" stroke-width="2"/>
+<line x1="419.0" y1="194.0" x2="441.0" y2="194.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="194.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">3</text>
+<line x1="419.0" y1="220.0" x2="441.0" y2="220.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="220.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">5</text>
+<line x1="419.0" y1="246.0" x2="441.0" y2="246.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="246.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">6</text>
+<line x1="419.0" y1="272.0" x2="441.0" y2="272.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="272.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">7</text>
+<line x1="419.0" y1="298.0" x2="441.0" y2="298.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="298.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">8</text>
+<line x1="419.0" y1="324.0" x2="441.0" y2="324.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="324.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">9</text>
+<line x1="419.0" y1="350.0" x2="441.0" y2="350.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="350.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">10</text>
+<line x1="419.0" y1="376.0" x2="441.0" y2="376.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="376.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">13</text>
+<text x="501.0" y="170" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B3JX1-CR</text>
+<text x="501.0" y="399" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="24367.0" y="70" width="120" height="144" fill="none" stroke="black" stroke-width="2"/>
+<line x1="24345.0" y1="90.0" x2="24367.0" y2="90.0" stroke="black" stroke-width="2"/>
+<text x="24372.0" y="90.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">OP5</text>
+<line x1="24345.0" y1="116.0" x2="24367.0" y2="116.0" stroke="black" stroke-width="2"/>
+<text x="24372.0" y="116.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">IP3</text>
+<line x1="24345.0" y1="142.0" x2="24367.0" y2="142.0" stroke="black" stroke-width="2"/>
+<text x="24372.0" y="142.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">OP6</text>
+<line x1="24345.0" y1="168.0" x2="24367.0" y2="168.0" stroke="black" stroke-width="2"/>
+<text x="24372.0" y="168.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">OP7</text>
+<line x1="24345.0" y1="194.0" x2="24367.0" y2="194.0" stroke="black" stroke-width="2"/>
+<text x="24372.0" y="194.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">IP4</text>
+<text x="24427.0" y="66" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B3JX2</text>
+<text x="24427.0" y="217" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="441.0" y="460" width="120" height="248" fill="none" stroke="black" stroke-width="2"/>
+<line x1="419.0" y1="480.0" x2="441.0" y2="480.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="480.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">3</text>
+<line x1="419.0" y1="506.0" x2="441.0" y2="506.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="506.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">4</text>
+<line x1="419.0" y1="532.0" x2="441.0" y2="532.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="532.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">5</text>
+<line x1="419.0" y1="558.0" x2="441.0" y2="558.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="558.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">6</text>
+<line x1="419.0" y1="584.0" x2="441.0" y2="584.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="584.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">7</text>
+<line x1="419.0" y1="610.0" x2="441.0" y2="610.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="610.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">8</text>
+<line x1="419.0" y1="636.0" x2="441.0" y2="636.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="636.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">9</text>
+<line x1="419.0" y1="662.0" x2="441.0" y2="662.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="662.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">10</text>
+<line x1="419.0" y1="688.0" x2="441.0" y2="688.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="688.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">13</text>
+<text x="501.0" y="456" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B3JX2-CR</text>
+<text x="501.0" y="711" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="735.0" y="70" width="120" height="430" fill="none" stroke="black" stroke-width="2"/>
+<line x1="713.0" y1="90.0" x2="735.0" y2="90.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="90.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">1</text>
+<line x1="713.0" y1="116.0" x2="735.0" y2="116.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="116.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">2</text>
+<line x1="713.0" y1="142.0" x2="735.0" y2="142.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="142.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">3</text>
+<line x1="713.0" y1="168.0" x2="735.0" y2="168.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="168.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">4</text>
+<line x1="713.0" y1="194.0" x2="735.0" y2="194.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="194.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">5</text>
+<line x1="713.0" y1="220.0" x2="735.0" y2="220.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="220.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">6</text>
+<line x1="713.0" y1="246.0" x2="735.0" y2="246.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="246.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">7</text>
+<line x1="713.0" y1="272.0" x2="735.0" y2="272.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="272.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">8</text>
+<line x1="713.0" y1="298.0" x2="735.0" y2="298.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="298.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">9</text>
+<line x1="713.0" y1="324.0" x2="735.0" y2="324.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="324.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">10</text>
+<line x1="713.0" y1="350.0" x2="735.0" y2="350.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="350.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">11</text>
+<line x1="713.0" y1="376.0" x2="735.0" y2="376.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="376.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">12</text>
+<line x1="713.0" y1="402.0" x2="735.0" y2="402.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="402.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">13</text>
+<line x1="713.0" y1="428.0" x2="735.0" y2="428.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="428.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">14</text>
+<line x1="713.0" y1="454.0" x2="735.0" y2="454.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="454.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">15</text>
+<line x1="713.0" y1="480.0" x2="735.0" y2="480.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="480.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">16</text>
+<text x="795.0" y="66" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">B3OXJ2</text>
+<text x="795.0" y="503" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="147.0" y="694" width="120" height="66" fill="none" stroke="black" stroke-width="2"/>
+<line x1="267.0" y1="714.0" x2="289.0" y2="714.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="714.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">A</text>
+<line x1="267.0" y1="740.0" x2="289.0" y2="740.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="740.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">B</text>
+<text x="207.0" y="690" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">BHJP2</text>
+<text x="207.0" y="763" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<rect x="735.0" y="564" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="713.0" y1="584.0" x2="735.0" y2="584.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="584.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">-</text>
+<text x="795.0" y="560" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">Brd1</text>
+<text x="795.0" y="607" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Sensor / Transducer</text>
+<line x1="220.0" y1="835.0" x2="246.0" y2="835.0" stroke="black" stroke-width="2"/>
+<polygon points="194.0,824.0 194.0,846.0 214.0,835.0" fill="black" stroke="black"/>
+<line x1="214.0" y1="824.0" x2="214.0" y2="846.0" stroke="black" stroke-width="3"/>
+<line x1="214.0" y1="835.0" x2="220.0" y2="835.0" stroke="black" stroke-width="2"/>
+<text x="207.0" y="822" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">DB25</text>
+<line x1="220.0" y1="921.0" x2="246.0" y2="921.0" stroke="black" stroke-width="2"/>
+<polygon points="194.0,910.0 194.0,932.0 214.0,921.0" fill="black" stroke="black"/>
+<line x1="214.0" y1="910.0" x2="214.0" y2="932.0" stroke="black" stroke-width="3"/>
+<line x1="214.0" y1="921.0" x2="220.0" y2="921.0" stroke="black" stroke-width="2"/>
+<text x="207.0" y="908" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">DB37</text>
+<rect x="441.0" y="998" width="120" height="430" fill="none" stroke="black" stroke-width="2"/>
+<line x1="561.0" y1="1018.0" x2="583.0" y2="1018.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1018.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">1</text>
+<line x1="561.0" y1="1044.0" x2="583.0" y2="1044.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1044.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">2</text>
+<line x1="561.0" y1="1070.0" x2="583.0" y2="1070.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1070.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">3</text>
+<line x1="561.0" y1="1096.0" x2="583.0" y2="1096.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1096.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">4</text>
+<line x1="561.0" y1="1122.0" x2="583.0" y2="1122.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1122.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">5</text>
+<line x1="561.0" y1="1148.0" x2="583.0" y2="1148.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1148.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">6</text>
+<line x1="561.0" y1="1174.0" x2="583.0" y2="1174.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1174.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">7</text>
+<line x1="561.0" y1="1200.0" x2="583.0" y2="1200.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1200.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">8</text>
+<line x1="561.0" y1="1226.0" x2="583.0" y2="1226.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1226.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">9</text>
+<line x1="561.0" y1="1252.0" x2="583.0" y2="1252.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1252.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">10</text>
+<line x1="561.0" y1="1278.0" x2="583.0" y2="1278.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1278.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">11</text>
+<line x1="561.0" y1="1304.0" x2="583.0" y2="1304.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1304.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">12</text>
+<line x1="561.0" y1="1330.0" x2="583.0" y2="1330.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1330.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">13</text>
+<line x1="561.0" y1="1356.0" x2="583.0" y2="1356.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1356.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">14</text>
+<line x1="561.0" y1="1382.0" x2="583.0" y2="1382.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1382.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">15</text>
+<line x1="561.0" y1="1408.0" x2="583.0" y2="1408.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1408.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">16</text>
+<text x="501.0" y="994" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">DB37B</text>
+<text x="501.0" y="1431" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Diode / LED</text>
+<line x1="220.0" y1="1007.0" x2="246.0" y2="1007.0" stroke="black" stroke-width="2"/>
+<polygon points="194.0,996.0 194.0,1018.0 214.0,1007.0" fill="black" stroke="black"/>
+<line x1="214.0" y1="996.0" x2="214.0" y2="1018.0" stroke="black" stroke-width="3"/>
+<line x1="214.0" y1="1007.0" x2="220.0" y2="1007.0" stroke="black" stroke-width="2"/>
+<text x="207.0" y="994" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">DB50</text>
+<rect x="147.0" y="1082" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="267.0" y1="1102.0" x2="289.0" y2="1102.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="1102.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<text x="207.0" y="1078" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">EMU0</text>
+<text x="207.0" y="1125" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="147.0" y="1186" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="267.0" y1="1206.0" x2="289.0" y2="1206.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="1206.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<text x="207.0" y="1182" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">EMU1</text>
+<text x="207.0" y="1229" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="23289.0" y="70" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="23409.0" y1="90.0" x2="23431.0" y2="90.0" stroke="black" stroke-width="2"/>
+<text x="23404.0" y="90.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">M</text>
+<text x="23349.0" y="66" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">ISDF-10-D</text>
+<text x="23349.0" y="113" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="174.0" y="1290" width="66" height="38" fill="none" stroke="black" stroke-width="2"/>
+<line x1="240.0" y1="1309.0" x2="262.0" y2="1309.0" stroke="black" stroke-width="2"/>
+<circle cx="240.0" cy="1309.0" r="3" fill="white" stroke="black" stroke-width="2"/>
+<text x="232.0" y="1309.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<text x="207.0" y="1286" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">JP6</text>
+<circle cx="512.0" cy="904" r="30" fill="none" stroke="black" stroke-width="2"/>
+<text x="512.0" y="904" font-size="16" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="central">M</text>
+<text x="512.0" y="916" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="middle" dominant-baseline="central">3~</text>
+<line x1="482.0" y1="904.0" x2="460.0" y2="904.0" stroke="black" stroke-width="2"/>
+<text x="490.0" y="904.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<text x="512.0" y="870" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">Mux2</text>
+<rect x="24073.0" y="70" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="24193.0" y1="90.0" x2="24215.0" y2="90.0" stroke="black" stroke-width="2"/>
+<text x="24188.0" y="90.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<text x="24133.0" y="66" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">SFDB15F</text>
+<text x="24133.0" y="113" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Switch</text>
+<rect x="24073.0" y="174" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="24193.0" y1="194.0" x2="24215.0" y2="194.0" stroke="black" stroke-width="2"/>
+<text x="24188.0" y="194.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<text x="24133.0" y="170" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">SFDB2</text>
+<text x="24133.0" y="217" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Switch</text>
+<rect x="24367.0" y="278" width="120" height="66" fill="none" stroke="black" stroke-width="2"/>
+<line x1="24487.0" y1="298.0" x2="24509.0" y2="298.0" stroke="black" stroke-width="2"/>
+<text x="24482.0" y="298.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<line x1="24487.0" y1="324.0" x2="24509.0" y2="324.0" stroke="black" stroke-width="2"/>
+<text x="24482.0" y="324.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">JP1</text>
+<text x="24427.0" y="274" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">TAP1</text>
+<text x="24427.0" y="347" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Transformer</text>
+<rect x="23779.0" y="174" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="23899.0" y1="194.0" x2="23921.0" y2="194.0" stroke="black" stroke-width="2"/>
+<text x="23894.0" y="194.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<text x="23839.0" y="170" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">TAP2</text>
+<text x="23839.0" y="217" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Transformer</text>
+<rect x="23779.0" y="382" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="23757.0" y1="402.0" x2="23779.0" y2="402.0" stroke="black" stroke-width="2"/>
+<text x="23784.0" y="402.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">IP</text>
+<text x="23839.0" y="378" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">U3</text>
+<text x="23839.0" y="425" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="147.0" y="1392" width="120" height="118" fill="none" stroke="black" stroke-width="2"/>
+<line x1="267.0" y1="1412.0" x2="289.0" y2="1412.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="1412.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">3</text>
+<line x1="267.0" y1="1438.0" x2="289.0" y2="1438.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="1438.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">4</text>
+<line x1="267.0" y1="1464.0" x2="289.0" y2="1464.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="1464.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">5</text>
+<line x1="267.0" y1="1490.0" x2="289.0" y2="1490.0" stroke="black" stroke-width="2"/>
+<text x="262.0" y="1490.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">6</text>
+<text x="207.0" y="1388" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">U3-B1</text>
+<text x="207.0" y="1513" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="735.0" y="954" width="120" height="118" fill="none" stroke="black" stroke-width="2"/>
+<line x1="713.0" y1="974.0" x2="735.0" y2="974.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="974.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">3</text>
+<line x1="713.0" y1="1000.0" x2="735.0" y2="1000.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="1000.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">4</text>
+<line x1="713.0" y1="1026.0" x2="735.0" y2="1026.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="1026.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">5</text>
+<line x1="713.0" y1="1052.0" x2="735.0" y2="1052.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="1052.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">6</text>
+<text x="795.0" y="950" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">U3-B2</text>
+<text x="795.0" y="1075" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="441.0" y="1882" width="120" height="118" fill="none" stroke="black" stroke-width="2"/>
+<line x1="561.0" y1="1902.0" x2="583.0" y2="1902.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1902.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">3</text>
+<line x1="561.0" y1="1928.0" x2="583.0" y2="1928.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1928.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">4</text>
+<line x1="561.0" y1="1954.0" x2="583.0" y2="1954.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1954.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">5</text>
+<line x1="561.0" y1="1980.0" x2="583.0" y2="1980.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1980.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">6</text>
+<text x="501.0" y="1878" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">U3-IP</text>
+<text x="501.0" y="2003" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="23289.0" y="174" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="23409.0" y1="194.0" x2="23431.0" y2="194.0" stroke="black" stroke-width="2"/>
+<text x="23404.0" y="194.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">IP</text>
+<text x="23349.0" y="170" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">U4</text>
+<text x="23349.0" y="217" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="441.0" y="1596" width="120" height="118" fill="none" stroke="black" stroke-width="2"/>
+<line x1="561.0" y1="1616.0" x2="583.0" y2="1616.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1616.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">2</text>
+<line x1="561.0" y1="1642.0" x2="583.0" y2="1642.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1642.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">3</text>
+<line x1="561.0" y1="1668.0" x2="583.0" y2="1668.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1668.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">4</text>
+<line x1="561.0" y1="1694.0" x2="583.0" y2="1694.0" stroke="black" stroke-width="2"/>
+<text x="556.0" y="1694.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">5</text>
+<text x="501.0" y="1592" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">U4-B1</text>
+<text x="501.0" y="1717" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="735.0" y="668" width="120" height="118" fill="none" stroke="black" stroke-width="2"/>
+<line x1="713.0" y1="688.0" x2="735.0" y2="688.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="688.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">3</text>
+<line x1="713.0" y1="714.0" x2="735.0" y2="714.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="714.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">4</text>
+<line x1="713.0" y1="740.0" x2="735.0" y2="740.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="740.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">5</text>
+<line x1="713.0" y1="766.0" x2="735.0" y2="766.0" stroke="black" stroke-width="2"/>
+<text x="740.0" y="766.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">6</text>
+<text x="795.0" y="664" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">U4-IP</text>
+<text x="795.0" y="789" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="441.0" y="1492" width="120" height="40" fill="none" stroke="black" stroke-width="2"/>
+<line x1="419.0" y1="1512.0" x2="441.0" y2="1512.0" stroke="black" stroke-width="2"/>
+<text x="446.0" y="1512.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">75</text>
+<text x="501.0" y="1488" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">WITH</text>
+<text x="501.0" y="1535" font-size="8" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="#666666" text-anchor="middle" dominant-baseline="hanging">Integrated circuit</text>
+<rect x="468.0" y="772" width="66" height="38" fill="none" stroke="black" stroke-width="2"/>
+<line x1="534.0" y1="791.0" x2="556.0" y2="791.0" stroke="black" stroke-width="2"/>
+<circle cx="534.0" cy="791.0" r="3" fill="white" stroke="black" stroke-width="2"/>
+<text x="526.0" y="791.0" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="end" dominant-baseline="central">-</text>
+<text x="501.0" y="768" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">XYLPT2</text>
+<line x1="23601.0" y1="85.0" x2="23627.0" y2="85.0" stroke="black" stroke-width="2"/>
+<line x1="23587.0" y1="85.0" x2="23591.0" y2="85.0" stroke="black" stroke-width="2"/>
+<line x1="23597.0" y1="85.0" x2="23601.0" y2="85.0" stroke="black" stroke-width="2"/>
+<line x1="23591.0" y1="70.0" x2="23591.0" y2="100.0" stroke="black" stroke-width="3"/>
+<line x1="23597.0" y1="70.0" x2="23597.0" y2="100.0" stroke="black" stroke-width="3"/>
+<text x="23594.0" y="68" font-size="12" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="text-after-edge">cc03r-2830-01</text>
+<rect x="60" y="2256" width="170" height="56" fill="none" stroke="black" stroke-width="1"/>
+<text x="145.0" y="2266" font-size="10" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="central">Legend</text>
+<rect x="68" y="2274" width="16" height="12" fill="#7F7F7F" stroke="black" stroke-width="1"/>
+<text x="90" y="2280" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">Ground</text>
+<rect x="68" y="2292" width="16" height="12" fill="#444444" stroke="black" stroke-width="1"/>
+<text x="90" y="2298" font-size="9" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="start" dominant-baseline="central">Other</text>
+<rect x="12184.0" y="2320" width="560" height="26" fill="none" stroke="black" stroke-width="2"/>
+<text x="12464.0" y="2333" font-size="13" font-family="Helvetica,Arial,sans-serif" font-weight="bold" fill="black" text-anchor="middle" dominant-baseline="central">BB3 SUNRISE — Wiring Diagram</text>
+<rect x="12184.0" y="2346" width="140.0" height="22" fill="none" stroke="black" stroke-width="2"/>
+<text x="12254.0" y="2357" font-size="10" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="middle" dominant-baseline="central">Doc: TUM-001</text>
+<rect x="12324.0" y="2346" width="140.0" height="22" fill="none" stroke="black" stroke-width="2"/>
+<text x="12394.0" y="2357" font-size="10" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="middle" dominant-baseline="central">Rev: 1.0</text>
+<rect x="12464.0" y="2346" width="140.0" height="22" fill="none" stroke="black" stroke-width="2"/>
+<text x="12534.0" y="2357" font-size="10" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="middle" dominant-baseline="central">Date: 2026-07-06</text>
+<rect x="12604.0" y="2346" width="140.0" height="22" fill="none" stroke="black" stroke-width="2"/>
+<text x="12674.0" y="2357" font-size="10" font-family="Helvetica,Arial,sans-serif" font-weight="normal" fill="black" text-anchor="middle" dominant-baseline="central">Sheet: BB3_SUNRISE</text>
+</svg>
