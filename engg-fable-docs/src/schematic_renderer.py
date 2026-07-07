@@ -32,7 +32,7 @@ Image.MAX_IMAGE_PIXELS = None
 _MAX_PNG_PIXELS = 60_000_000
 
 from src.component_registry import SIGNAL_CLASSES, classify_signal
-from src.config import DOC_NUMBER, DOC_VERSION
+from src import config
 
 # ── Geometry constants (in sheet units; rendered at SCALE px/unit) ────────
 SCALE = 2
@@ -824,7 +824,7 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
     sh.text(tb_x + tb_w / 2, tb_y + 13,
             subsystem.replace("_", " ") + " — Wiring Diagram",
             size=13, bold=True, anchor="mm")
-    cells = [f"Doc: {DOC_NUMBER}", f"Rev: {DOC_VERSION}",
+    cells = [f"Doc: {config.DOC_NUMBER}", f"Rev: {config.DOC_VERSION}",
              f"Date: {date.today().isoformat()}", f"Sheet: {subsystem}"]
     cw = tb_w / len(cells)
     for i, ctext in enumerate(cells):

@@ -144,14 +144,16 @@ class DescriptionAgent:
             prior_context: str = "",
             interconnections: list = None,
             sys_name: str = "",
-            feedback: str = "") -> Dict:
+            feedback: str = "",
+            reference_context: str = "") -> Dict:
         registry = registry or {}
         comp_descs = DescriptionAgent.describe_components(connections, registry, research_cache or {})
         module_descs = DescriptionAgent.describe_modules(connections, comp_descs)
         signals = signal_table(connections)
 
         narrative = DescriptionAgent._subsystem_llm(
-            subsystem, connections, comp_descs, module_descs, prior_context, feedback)
+            subsystem, connections, comp_descs, module_descs, prior_context,
+            feedback, reference_context)
         if not narrative:
             narrative = DescriptionAgent._subsystem_fallback(
                 subsystem, connections, comp_descs, module_descs)
@@ -214,7 +216,7 @@ class DescriptionAgent:
 
     @staticmethod
     def _subsystem_llm(subsystem, connections, comp_descs, module_descs,
-                       prior_context, feedback) -> str:
+                       prior_context, feedback, reference_context="") -> str:
         # Production sheets can have 100+ components; sending everything
         # overflows the server's context (llama.cpp answers 400). Cap the
         # background lists — the LLM needs a representative sample, not the
@@ -239,6 +241,11 @@ class DescriptionAgent:
             prompt_parts.append(
                 "\nPreviously documented sub-modules (maintain continuity, reference "
                 "them where signals cross the boundary):\n" + prior_context[-2000:])
+        if reference_context:
+            prompt_parts.append(
+                "\nReference documentation supplied by the user (authoritative "
+                "background — use it to sharpen the functional description):\n"
+                + reference_context[:1500])
         if feedback:
             prompt_parts.append(f"\nReviewer feedback to address: {feedback}")
         prompt_parts.append(
@@ -324,7 +331,8 @@ class DescriptionAgent:
     # ── Level 4: system ───────────────────────────────────────────────────
     @staticmethod
     def describe_system(sys_name: str, descriptions: Dict[str, dict],
-                        bridges: List[dict], feedback: str = "") -> str:
+                        bridges: List[dict], feedback: str = "",
+                        reference_context: str = "") -> str:
         sub_overviews = "\n".join(
             f"- {sn.replace('_', ' ')}: {str(d.get('overview', ''))[:250]}"
             for sn, d in descriptions.items())
@@ -341,7 +349,10 @@ class DescriptionAgent:
             f"Cross-subsystem links:\n{bridge_lines}\n\n"
             "Explain the end-to-end operation: how power enters, how the controller "
             "coordinates the subsystems, and how the output is produced. Reference each "
-            "subsystem by name." + (f"\nReviewer feedback: {feedback}" if feedback else ""))
+            "subsystem by name."
+            + (f"\n\nReference documentation from the user (authoritative):\n"
+               f"{reference_context[:1500]}" if reference_context else "")
+            + (f"\nReviewer feedback: {feedback}" if feedback else ""))
         raw = ask_llm(prompt, _SYSTEM_PROMPT, max_tokens=MAX_TOKENS_DESCRIPTION)
         if raw and len(raw) > 120:
             return raw

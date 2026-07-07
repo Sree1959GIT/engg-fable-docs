@@ -31,7 +31,8 @@ from reportlab.platypus import (BaseDocTemplate, Frame, Image as RLImage,
                                 Table, TableStyle)
 from reportlab.platypus.tableofcontents import TableOfContents
 
-from src.config import DOC_AUTHOR, DOC_NUMBER, DOC_ORGANIZATION, DOC_VERSION, OUTPUT_DIR
+from src import config
+from src.config import DOC_AUTHOR, DOC_ORGANIZATION, OUTPUT_DIR
 
 ACCENT = "#1F4E79"
 
@@ -92,7 +93,7 @@ class _ManualDoc(BaseDocTemplate):
         canvas.setFont("Helvetica", 8)
         canvas.setFillColor(colors.grey)
         canvas.drawString(0.9 * inch, 0.55 * inch,
-                          f"{self._sys_title} — Technical User Manual  |  {DOC_NUMBER} Rev {DOC_VERSION}")
+                          f"{self._sys_title} — Technical User Manual  |  {config.DOC_NUMBER} Rev {config.DOC_VERSION}")
         canvas.drawRightString(letter[0] - 0.9 * inch, 0.55 * inch, f"Page {doc.page}")
         canvas.restoreState()
 
@@ -159,7 +160,8 @@ class DocumentationAgent:
         df_conn = state.get("df_connectivity", pd.DataFrame())
         sys_name = (str(df_conn["System_Name"].iloc[0])
                     if "System_Name" in df_conn.columns and not df_conn.empty else "System")
-        sys_title = sys_name.replace("_", " ")
+        # user-supplied document title (web UI step 1) wins over the system name
+        sys_title = (state.get("doc_title") or sys_name).replace("_", " ")
 
         DocumentationAgent._build_docx(state, sys_title, docx_path)
         DocumentationAgent._build_pdf(state, sys_title, pdf_path)
@@ -200,7 +202,7 @@ class DocumentationAgent:
         meta = doc.add_paragraph()
         meta.alignment = WD_ALIGN_PARAGRAPH.CENTER
         meta.add_run(
-            f"Document No: {DOC_NUMBER}    Version: {DOC_VERSION}    Date: {today}\n"
+            f"Document No: {config.DOC_NUMBER}    Version: {config.DOC_VERSION}    Date: {today}\n"
             f"Prepared by: {DOC_AUTHOR}"
             + (f"\n{DOC_ORGANIZATION}" if DOC_ORGANIZATION else "")
         ).font.size = Pt(11)
@@ -209,7 +211,7 @@ class DocumentationAgent:
         # ── Revision history + TOC ──
         doc.add_heading("Revision History", 1)
         _docx_table(doc, ["Version", "Date", "Author", "Description"],
-                    [[DOC_VERSION, today, DOC_AUTHOR, "Initial release"]])
+                    [[config.DOC_VERSION, today, DOC_AUTHOR, "Initial release"]])
         doc.add_paragraph()
         doc.add_heading("Table of Contents", 1)
         _docx_toc_field(doc)
@@ -220,6 +222,13 @@ class DocumentationAgent:
         sys_diag = diags.get("System_Overview")
         if sys_diag and os.path.exists(sys_diag):
             doc.add_picture(sys_diag, width=Inches(6.3))
+            doc.add_paragraph(
+                "The complete block diagram above is provided at full "
+                "resolution for zooming/large-format printing; A4-friendly "
+                "split sheets follow." )
+        for key in sorted(k for k in diags if k.startswith("System_Overview_Sheet")):
+            if diags[key] and os.path.exists(diags[key]):
+                doc.add_picture(diags[key], width=Inches(6.3))
         doc.add_heading("1.1 Functional Description", 2)
         for para in (system_desc or "System description not available.").split("\n\n"):
             doc.add_paragraph(para)
@@ -313,13 +322,13 @@ class DocumentationAgent:
         story.append(Spacer(1, 2.4 * inch))
         story.append(_pdf_table(
             ["Document No", "Version", "Date", "Prepared By"],
-            [[DOC_NUMBER, DOC_VERSION, today, DOC_AUTHOR]], ss))
+            [[config.DOC_NUMBER, config.DOC_VERSION, today, DOC_AUTHOR]], ss))
         story.append(PageBreak())
 
         # ── Revision history + TOC ──
         story.append(Paragraph("Revision History", ss["TOCHeading1"]))
         story.append(_pdf_table(["Version", "Date", "Author", "Description"],
-                                [[DOC_VERSION, today, DOC_AUTHOR, "Initial release"]], ss))
+                                [[config.DOC_VERSION, today, DOC_AUTHOR, "Initial release"]], ss))
         story.append(Spacer(1, 0.35 * inch))
         story.append(Paragraph("Table of Contents", ss["TOCHeading1"]))
         toc = TableOfContents()
@@ -338,6 +347,11 @@ class DocumentationAgent:
             if img:
                 story.append(img)
                 story.append(Spacer(1, 0.15 * inch))
+        for key in sorted(k for k in diags if k.startswith("System_Overview_Sheet")):
+            img = _pdf_image(diags.get(key, ""))
+            if img:
+                story.append(img)
+                story.append(Spacer(1, 0.12 * inch))
         for para in (system_desc or "").split("\n\n"):
             story.append(Paragraph(para, ss["Body"]))
         if bridges:

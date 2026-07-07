@@ -40,7 +40,8 @@ from src.component_registry import (
     classify_signal,
     shape_for_prefix,
 )
-from src.config import DIAGRAM_DIR, DOC_NUMBER, DOC_VERSION
+from src import config
+from src.config import DIAGRAM_DIR
 
 # Header fill per IEC 81346 class letter
 _CLASS_HEADER_COLORS = {
@@ -86,7 +87,7 @@ def _title_block(title: str, sheet: str) -> str:
     return (
         '<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">'
         f'<TR><TD COLSPAN="4"><B>{html.escape(title)}</B></TD></TR>'
-        f'<TR><TD>Doc: {html.escape(DOC_NUMBER)}</TD><TD>Rev: {html.escape(DOC_VERSION)}</TD>'
+        f'<TR><TD>Doc: {html.escape(config.DOC_NUMBER)}</TD><TD>Rev: {html.escape(config.DOC_VERSION)}</TD>'
         f'<TD>Date: {today}</TD><TD>Sheet: {html.escape(sheet)}</TD></TR>'
         "</TABLE>>"
     )
@@ -296,6 +297,90 @@ class DiagramLeadAgent:
 
         lines.append("}")
         return DiagramLeadAgent._render("\n".join(lines), "System_Overview", output_dir)
+
+    # ── Split system diagram: A4-friendly sheets for big systems ─────────
+    @staticmethod
+    def build_system_diagram_sheets(df_conn: pd.DataFrame,
+                                    registry: Dict[str, dict] = None,
+                                    output_dir: str = DIAGRAM_DIR,
+                                    max_per_sheet: int = 5) -> list:
+        """When the system has many sub-modules, ALSO emit the block diagram
+        split across multiple sheets (professional-drawing style): each sheet
+        holds up to max_per_sheet sub-module blocks; links that cross a sheet
+        boundary point at a small off-sheet reference flag ('→ Sheet n').
+        The single full-resolution diagram is still produced separately."""
+        if registry is None:
+            registry = build_component_registry(df_conn)
+        subs = [str(s) for s in df_conn["Subsystem_Name"].unique()]
+        if len(subs) <= max_per_sheet:
+            return []
+
+        sub_components: Dict[str, set] = {}
+        for sub, g in df_conn.groupby("Subsystem_Name"):
+            ids = set(g["Component_ID"].astype(str)) | set(g["Target_ID"].astype(str))
+            sub_components[str(sub)] = ids
+
+        chunks = [subs[i:i + max_per_sheet]
+                  for i in range(0, len(subs), max_per_sheet)]
+        sheet_of = {s: k for k, chunk in enumerate(chunks) for s in chunk}
+        paths = []
+        for k, chunk in enumerate(chunks):
+            lines = [
+                f"digraph System_Sheet{k + 1} {{",
+                "  rankdir=LR;", "  splines=ortho;", "  nodesep=1.0;",
+                "  ranksep=1.6;", '  fontname="Helvetica";',
+                f"  label={_title_block('System Block Diagram — Sheet ' + str(k + 1) + ' of ' + str(len(chunks)), 'Sys-' + str(k + 1))};",
+                "  labelloc=b;",
+                '  node [fontname="Helvetica", shape=plaintext];',
+                '  edge [fontname="Helvetica", fontsize=10];', "",
+            ]
+            for n, sub in enumerate(chunk, start=1):
+                comp_rows = "".join(
+                    f'<TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10">{html.escape(c)}'
+                    "</FONT></TD></TR>"
+                    for c in sorted(sub_components[sub])[:14])
+                more = len(sub_components[sub]) - 14
+                if more > 0:
+                    comp_rows += (f'<TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">…and '
+                                  f"{more} more</FONT></TD></TR>")
+                lbl = ('<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">'
+                       f'<TR><TD BGCOLOR="#1F4E79"><FONT COLOR="white" POINT-SIZE="12">'
+                       f'<B>{k * max_per_sheet + n}. {html.escape(sub.replace("_", " "))}</B></FONT></TD></TR>'
+                       + comp_rows + "</TABLE>>")
+                lines.append(f"  {_safe_id(sub)} [label={lbl}];")
+            # links: within-sheet directly, off-sheet via reference flags
+            drawn, refs = set(), set()
+            for a in chunk:
+                for b in subs:
+                    if a == b or (b, a) in drawn:
+                        continue
+                    shared = sub_components[a] & sub_components.get(b, set())
+                    if not shared:
+                        continue
+                    drawn.add((a, b))
+                    label = "via " + ", ".join(sorted(shared)[:4])
+                    if sheet_of[b] == k:
+                        lines.append(
+                            f'  {_safe_id(a)} -> {_safe_id(b)} [dir=both, penwidth=1.4, '
+                            f'xlabel=<<FONT POINT-SIZE="9">{html.escape(label)}</FONT>>];')
+                    else:
+                        ref = f"ref_{_safe_id(b)}"
+                        if ref not in refs:
+                            refs.add(ref)
+                            lines.append(
+                                f'  {ref} [label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" '
+                                f'CELLPADDING="4" BGCOLOR="#FFF2CC"><TR><TD><FONT POINT-SIZE="10">'
+                                f"&#8594; Sheet {sheet_of[b] + 1}: "
+                                f"{html.escape(b.replace('_', ' '))}</FONT></TD></TR></TABLE>>];")
+                        lines.append(
+                            f'  {_safe_id(a)} -> {ref} [style=dashed, penwidth=1.2, '
+                            f'xlabel=<<FONT POINT-SIZE="9">{html.escape(label)}</FONT>>];')
+            lines.append("}")
+            p = DiagramLeadAgent._render("\n".join(lines),
+                                         f"System_Overview_Sheet{k + 1}", output_dir)
+            if p:
+                paths.append(p)
+        return paths
 
     # ── Rendering ─────────────────────────────────────────────────────────
     @staticmethod

@@ -75,6 +75,15 @@ def main():
             else:                                          # per-component worksheet
                 df_conn = merge_inventory(df_conn, worksheet)
                 df_bom = inventory_to_bom(worksheet)
+                # non-physical items (signals/test points/terminations) are
+                # kept as internal reference data, not BOM lines
+                from src.wiring_extractor import split_reference_items
+                _, ref_items = split_reference_items(worksheet)
+                if len(ref_items):
+                    os.makedirs("input", exist_ok=True)
+                    ref_items.to_excel("input/system_reference.xlsx", index=False)
+                    print(f"  {len(ref_items)} non-physical items saved to "
+                          "input/system_reference.xlsx (not BOM lines)")
         else:
             df_bom = generate_draft_bom(df_conn)
         missing = df_bom[df_bom["Make"].astype(str).str.upper() == "TBD"]

@@ -2,3 +2,5 @@ from .component_research_agent import ComponentResearchAgent
 from .diagram_lead_agent import DiagramLeadAgent
 from .description_agent import DescriptionAgent
 from .documentation_agent import DocumentationAgent
+from .diagram_review_agent import DiagramReviewAgent
+from .sme_review_agent import SMEReviewAgent

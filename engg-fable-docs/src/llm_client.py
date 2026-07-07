@@ -90,10 +90,20 @@ def ask_llm(prompt: str, system: str = "", max_tokens: int = MAX_TOKENS_DESCRIPT
         "stream": False,
     }
 
+    # Hardware-aware base timeout (iGPU machines get patient timeouts),
+    # stretched further on each retry: a timeout usually means the server
+    # is still crunching the prompt, so impatience just wastes the work.
+    try:
+        from src.hardware import detect_profile
+        base_timeout = detect_profile()["llm_timeout"]
+    except Exception:
+        base_timeout = LLM_TIMEOUT_SEC
+
     for attempt in range(1, retries + 1):
         try:
             with _semaphore:
-                resp = requests.post(LLM_CHAT_URL, json=payload, timeout=LLM_TIMEOUT_SEC)
+                resp = requests.post(LLM_CHAT_URL, json=payload,
+                                     timeout=base_timeout * attempt)
             resp.raise_for_status()
             content = resp.json()["choices"][0]["message"]["content"].strip()
             if content:

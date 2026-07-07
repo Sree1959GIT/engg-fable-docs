@@ -226,8 +226,28 @@ def extract_part_hints(source: Union[str, io.BytesIO]) -> Dict[str, dict]:
     return hints
 
 
-INVENTORY_COLUMNS = ["Component_ID", "Connections", "Make", "Model",
-                     "Part_Number", "Type", "Description", "Status"]
+INVENTORY_COLUMNS = ["Component_ID", "Item_Type", "Connections", "Make",
+                     "Model", "Part_Number", "Type", "Description", "Status"]
+
+# Item_Type vocabulary — the user assigns these in the curation step. Only
+# PHYSICAL types appear in the final BOM; the rest is saved as internal
+# reference data (input/system_reference.xlsx) for the pipeline to use.
+ITEM_TYPES = ["Component", "Module", "Sub-system", "Connector", "Cable",
+              "Termination", "Test point", "Signal name"]
+PHYSICAL_ITEM_TYPES = {"Component", "Module", "Sub-system", "Connector", "Cable"}
+
+
+def _guess_item_type(cid: str) -> str:
+    up = cid.upper()
+    if re.match(r"^TP\d", up):
+        return "Test point"
+    if re.match(r"^(PWR|GND|VCC|VDD|3V3|5V|12V|24V)", up):
+        return "Signal name"
+    if "SMPS" in up or "BRD" in up or "BOARD" in up or re.match(r"^RB\d", up):
+        return "Module"
+    if re.match(r"^(J|X|DB|CON|MPP|JP|JF|TB|TAP)[A-Z0-9]", up) or "JX" in up:
+        return "Connector"
+    return "Component"
 
 
 def build_inventory(df_conn: pd.DataFrame,
@@ -260,7 +280,8 @@ def build_inventory(df_conn: pd.DataFrame,
         ctype = IEC_81346_CLASSES.get(prefix, "Component")
         complete = bool((make or model or part))
         rows.append({
-            "Component_ID": cid, "Connections": counts[cid],
+            "Component_ID": cid, "Item_Type": _guess_item_type(cid),
+            "Connections": counts[cid],
             "Make": make, "Model": model, "Part_Number": part,
             "Type": hint.get("description") or ctype,
             "Description": hint.get("description") or "",
@@ -282,13 +303,25 @@ def merge_inventory(df_conn: pd.DataFrame,
     return df
 
 
+def split_reference_items(inventory: pd.DataFrame):
+    """(physical_items, reference_items): only physical, procurable items
+    belong in the BOM; signal names / test points / terminations are kept
+    as internal reference data for the pipeline."""
+    it = inventory.get("Item_Type", pd.Series(["Component"] * len(inventory)))
+    mask = it.astype(str).isin(PHYSICAL_ITEM_TYPES)
+    return inventory[mask].reset_index(drop=True), inventory[~mask].reset_index(drop=True)
+
+
 def inventory_to_bom(inventory: pd.DataFrame) -> pd.DataFrame:
     """Aggregate the curated inventory into the pipeline's BOM format
     (Reference_IDs / Make / Model / Part_Number / Type / Description / Qty).
-    Components sharing Make+Model collapse into one line; components still
-    missing data become TBD lines the manual flags for confirmation."""
+    Only PHYSICAL items are listed (signals/test points/terminations are
+    reference data); items sharing Make+Model collapse into one line with a
+    real aggregated quantity; items still missing data become TBD lines the
+    manual flags for confirmation."""
+    physical, _ = split_reference_items(inventory)
     groups: Dict[tuple, dict] = {}
-    for _, r in inventory.iterrows():
+    for _, r in physical.iterrows():
         make = str(r.get("Make", "") or "").strip()
         model = str(r.get("Model", "") or "").strip()
         part = str(r.get("Part_Number", "") or "").strip()
