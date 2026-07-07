@@ -91,7 +91,14 @@ class SupervisorAgent:
                 pass
 
     # ── verified single-sheet generation (used by full runs and rework) ──
-    def _diagram_with_review(self, sub: str, g: pd.DataFrame, feedback: str = ""):
+    def _diagram_with_review(self, sub: str, g: pd.DataFrame, feedback: str = "",
+                             report_progress: bool = True):
+        """report_progress must be False when this runs inside a worker
+        thread (Stage 2a's ThreadPoolExecutor): Streamlit UI calls are not
+        thread-safe and calling the progress_callback from a background
+        thread corrupts the app (the 'missing ScriptRunContext' warning is
+        the tell — it previously caused the review UI to go blank).
+        Console logging still happens either way."""
         registry = self.state["registry"]
         path, report = None, {"status": "skipped"}
         for attempt in range(1, MAX_DIAGRAM_REWORK + 1):
@@ -101,7 +108,11 @@ class SupervisorAgent:
             if report["status"] != "fail":
                 break
             feedback = f"verification found: {report['detail']}"
-            self._progress("Diagram Review", f"{sub}: rework {attempt} — {report['detail']}")
+            msg = f"{sub}: rework {attempt} — {report['detail']}"
+            if report_progress:
+                self._progress("Diagram Review", msg)
+            else:
+                print(f"\nDiagram Review — {msg}")
         report["attempts"] = attempt
         return path, report
 
@@ -182,7 +193,8 @@ class SupervisorAgent:
                 max_workers=self.profile["diagram_workers"]) as ex:
             diag_f = {
                 ex.submit(self._diagram_with_review, s,
-                          df_conn[df_conn["Subsystem_Name"] == s], feedback): s
+                          df_conn[df_conn["Subsystem_Name"] == s], feedback,
+                          False): s          # report_progress=False: worker thread
                 for s in subs
             }
             for f in concurrent.futures.as_completed(diag_f):

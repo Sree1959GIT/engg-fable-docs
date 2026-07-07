@@ -164,6 +164,14 @@ class Sheet:
         bb = self.draw.textbbox((0, 0), s, font=self._font(size, bold))
         return (bb[2] - bb[0]) / SCALE
 
+    def svg_meta_text(self, s: str):
+        """SVG-only annotation, invisible on the PNG raster. Used so a
+        deliberately decluttered PNG (e.g. bus-grouped signal names) still
+        carries every real label in the SVG — the Diagram Review agent
+        parses the SVG, so verification stays lossless even when the
+        picture itself omits detail for readability."""
+        self.svg.append(f'<text opacity="0" font-size="0.1">{_svg_escape(s)}</text>')
+
     def save(self, png_path: str, svg_path: str):
         img = self.img
         w, h = img.size
@@ -799,6 +807,11 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
                 sh.line(t - 7, midy - 1, t + 7, midy + 9, "black", 2)
                 sh.text(t + 12, midy, f"{len(g['edges'])} signals",
                         size=9, bold=True, anchor="lm", bg="white")
+                # every individual signal name still belongs in the SVG
+                # (lossless data, machine-verifiable) even though the PNG
+                # intentionally shows only the bus summary
+                for be in g["edges"]:
+                    sh.svg_meta_text(be["sig"])
             (x1, y1), _, _, (x2, y2) = pts
             sh.line(x1, y1, g["track"], y1, color, width)
             sh.line(g["track"], y2, x2, y2, color, width)

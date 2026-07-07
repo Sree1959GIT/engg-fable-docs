@@ -360,6 +360,13 @@ elif ss.step == 5:
             with st.spinner("Agents working..."):
                 sv.run_generation_cycle()
             progress.update(label="Pipeline complete", state="complete")
+            # Clear immediately: this closure is bound to a container that
+            # dies with THIS script run. Streamlit reruns the whole script
+            # on every interaction, and sv (in session_state) persists
+            # across runs — a stale reference here previously caused a
+            # blank/broken page whenever a later action (e.g. per-module
+            # rework) tried to write into this now-dead container.
+            sv.progress_callback = None
             st.rerun()
 
     elif sv.state["status"] in ("awaiting_review", "reviewing"):
@@ -429,8 +436,12 @@ elif ss.step == 5:
                         if st.button(f"Rework now ▶", key=f"nowbtn_{sn}"):
                             fb_text = st.session_state.get(fb_key, "").strip()
                             if fb_text:
+                                prog = st.empty()
+                                sv.progress_callback = lambda stage, detail, _p=prog: _p.write(
+                                    f"{stage}" + (f" — {detail}" if detail else ""))
                                 with st.spinner(f"Reworking {sn.replace('_', ' ')}..."):
                                     sv.rework_module(sn, fb_text)
+                                sv.progress_callback = None
                                 st.session_state[fb_key] = ""
                                 st.rerun()
                             else:
@@ -469,6 +480,8 @@ elif ss.step == 5:
                 else:
                     prog = st.status(f"Reworking {len(targets)} module(s)...",
                                      expanded=True)
+                    sv.progress_callback = lambda stage, detail, _p=prog: _p.write(
+                        f"{stage}" + (f" — {detail}" if detail else ""))
                     for sn in targets:
                         fb_text = st.session_state[f"fbbox_{sn}"].strip()
                         prog.write(f"Reworking {sn.replace('_', ' ')}...")
@@ -476,6 +489,7 @@ elif ss.step == 5:
                         st.session_state[f"fbbox_{sn}"] = ""
                         prog.write(f"✓ {sn.replace('_', ' ')} done")
                     prog.update(label="Rework complete", state="complete")
+                    sv.progress_callback = None
                     st.rerun()
         with col3:
             if st.button("↻ Full Regenerate (entire pipeline)", width="stretch"):
@@ -485,6 +499,7 @@ elif ss.step == 5:
                 with st.spinner("Agents working..."):
                     sv.run_generation_cycle()
                 progress.update(label="Pipeline complete", state="complete")
+                sv.progress_callback = None
                 st.rerun()
         with col4:
             if st.button("← Back to BOM", width="stretch"):
