@@ -303,6 +303,28 @@ def merge_inventory(df_conn: pd.DataFrame,
     return df
 
 
+def gaps_report(inventory: pd.DataFrame) -> pd.DataFrame:
+    """Rows still missing Make/Model/Part_Number — the pre-flight report
+    shown before proceeding with TBDs, so the user gets one more chance to
+    fill them in before the pipeline runs."""
+    missing = inventory[inventory["Status"] != "OK"]
+    cols = ["Component_ID", "Item_Type", "Connections", "Type", "Status"]
+    return missing[[c for c in cols if c in missing.columns]].reset_index(drop=True)
+
+
+def drop_components(df_conn: pd.DataFrame, keep_ids) -> tuple:
+    """Purge components the user deleted from the inventory (junk rows like
+    stray 'pin1' tokens) from the underlying connections too, so they vanish
+    from diagrams/descriptions — not just the BOM. Returns
+    (df_conn_filtered, n_connections_removed)."""
+    keep = set(str(k) for k in keep_ids)
+    before = len(df_conn)
+    mask = (df_conn["Component_ID"].astype(str).isin(keep)
+            & df_conn["Target_ID"].astype(str).isin(keep))
+    filtered = df_conn[mask].reset_index(drop=True)
+    return filtered, before - len(filtered)
+
+
 def split_reference_items(inventory: pd.DataFrame):
     """(physical_items, reference_items): only physical, procurable items
     belong in the BOM; signal names / test points / terminations are kept

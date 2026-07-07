@@ -111,15 +111,26 @@ class DiagramLeadAgent:
     def run(subsystem: str, connections: pd.DataFrame,
             registry: Dict[str, dict] = None,
             feedback: str = "",
-            output_dir: str = DIAGRAM_DIR) -> Optional[str]:
+            output_dir: str = DIAGRAM_DIR,
+            bus_mode: bool = False) -> Optional[str]:
         if registry is None:
             registry = build_component_registry(connections)
+        # Natural-language override from reviewer feedback: lets a user ask
+        # for (or turn off) bus-style grouping on a single module's rework
+        # without a dedicated UI control.
+        fb_low = (feedback or "").lower()
+        if "bus" in fb_low and ("no bus" in fb_low or "individual wire" in fb_low
+                               or "without bus" in fb_low or "remove bus" in fb_low):
+            bus_mode = False
+        elif "bus" in fb_low:
+            bus_mode = True
         # Primary path: IEC 60617 schematic renderer (pure Pillow, orthogonal
         # channel routing, manufacturer-style symbols). Graphviz DOT remains
         # only as a fallback if the renderer fails on unusual data.
         try:
             from src.schematic_renderer import render_schematic
-            path = render_schematic(subsystem, connections, registry, output_dir)
+            path = render_schematic(subsystem, connections, registry, output_dir,
+                                    bus_mode=bus_mode)
             if path:
                 return path
         except Exception as e:

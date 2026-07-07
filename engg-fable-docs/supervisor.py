@@ -37,7 +37,7 @@ MAX_DESC_REWORK = 1      # SME-driven regeneration attempts per description
 class SupervisorAgent:
     def __init__(self, df_connectivity: pd.DataFrame, df_bom: pd.DataFrame,
                  doc_title: str = "", reference_context: str = "",
-                 expectations: str = ""):
+                 expectations: str = "", bus_mode: bool = False):
         self.profile = detect_profile()
         self.state = {
             "df_connectivity": df_connectivity,
@@ -45,6 +45,7 @@ class SupervisorAgent:
             "doc_title": doc_title,
             "reference_context": reference_context,
             "expectations": expectations,
+            "bus_mode": bus_mode,
             "registry": {},
             "research_cache": {},
             "descriptions": {},
@@ -94,7 +95,8 @@ class SupervisorAgent:
         registry = self.state["registry"]
         path, report = None, {"status": "skipped"}
         for attempt in range(1, MAX_DIAGRAM_REWORK + 1):
-            path = DiagramLeadAgent.run(sub, g, registry, feedback)
+            path = DiagramLeadAgent.run(sub, g, registry, feedback,
+                                        bus_mode=self.state.get("bus_mode", False))
             report = DiagramReviewAgent.verify(sub, g, path)
             if report["status"] != "fail":
                 break
@@ -117,7 +119,8 @@ class SupervisorAgent:
                 reference_context=self.state["reference_context"])
             review = SMEReviewAgent.review(
                 sub, d, g, self.state["registry"],
-                all_subsystems=list(self.state["interconnections"].keys()))
+                all_subsystems=list(self.state["interconnections"].keys()),
+                full_connections=self.state["df_connectivity"])
             if review["status"] == "pass" or attempt > MAX_DESC_REWORK:
                 break
             fb = (feedback + "; " if feedback else "") + review["feedback"]

@@ -29,7 +29,13 @@ _WHITELIST = {
     "IEC81346", "2X5", "1X13", "8X", "3A", "40V", "10KL",
 }
 
-_DESIGNATOR_RE = re.compile(r"\b[A-Z][A-Z0-9]{1,7}(?:-[A-Z0-9]{1,6})?\b")
+# Allow up to 3 hyphen-joined segments (e.g. "B3-JP6-JTFPG") and underscores
+# within a segment (e.g. "...JTFPG_NET"). Both fixes matter together: \b is
+# a \w/\W transition and underscore IS a \w character, so without allowing
+# it inside the class, "B3-JP6-JTFPG_NET" failed to find a boundary after
+# the full designator and the regex backtracked to the truncated, spurious
+# "B3-JP6" — a false hallucination flag on a perfectly real signal name.
+_DESIGNATOR_RE = re.compile(r"\b[A-Z][A-Z0-9_]{1,10}(?:-[A-Z0-9_]{1,10}){0,3}\b")
 _PIN_ENUM_RE = re.compile(r"\(pin [^)]+\)\s+to\s+\w+\s+\(pin", re.IGNORECASE)
 
 
@@ -37,7 +43,8 @@ class SMEReviewAgent:
 
     @staticmethod
     def review(subsystem: str, description: Dict, connections: pd.DataFrame,
-               registry: Dict[str, dict], all_subsystems: List[str] = None) -> Dict:
+               registry: Dict[str, dict], all_subsystems: List[str] = None,
+               full_connections: pd.DataFrame = None) -> Dict:
         text = " ".join([
             str(description.get("full_description", "")),
             str(description.get("role_in_system", "")),
@@ -46,6 +53,14 @@ class SMEReviewAgent:
                  | set(connections["Target_ID"].astype(str))
                  | set(connections["Signal_Name"].astype(str))
                  | set(registry.keys()))
+        # "Role in the Overall System" legitimately names signals that cross
+        # a bridging component but only appear on the OTHER subsystem's own
+        # rows (interconnections_for reports the union across both sides) —
+        # so the vocabulary must span the whole dataset, not just this slice.
+        if full_connections is not None and not full_connections.empty:
+            known.update(full_connections["Component_ID"].astype(str))
+            known.update(full_connections["Target_ID"].astype(str))
+            known.update(full_connections["Signal_Name"].astype(str))
         # system / sub-module names are legitimate vocabulary too — the
         # role-in-system text references NEIGHBOURING sub-modules by name
         for col in ("System_Name", "Subsystem_Name"):

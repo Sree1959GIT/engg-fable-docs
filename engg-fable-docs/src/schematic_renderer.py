@@ -563,8 +563,17 @@ class _TrackAlloc:
 
 
 def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
-                     output_dir: str) -> Optional[str]:
-    """Render one subsystem wiring sheet. Returns the PNG path."""
+                     output_dir: str, bus_mode: bool = False,
+                     bus_min: int = 3) -> Optional[str]:
+    """Render one subsystem wiring sheet. Returns the PNG path.
+
+    bus_mode (user-requested style option): when 3+ signals run between the
+    SAME pair of components on the SAME channel, draw them as a classic
+    schematic BUS — one bold shared trunk with thin colored tap stubs into
+    each pin and a tick+count label — instead of N parallel individual
+    wires. Every pin is still drawn and still connected (no information
+    lost, just decluttered); groups spanning multiple channels fall back to
+    individual wires since a faithful single trunk isn't possible there."""
     edges = []
     for _, r in connections.iterrows():
         edges.append({
@@ -683,6 +692,35 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
 
     boxes = [symbols[n].bbox() for n in nodes]
 
+    # ── bus grouping (opt-in): merge 3+ same-channel signals between the
+    # same component pair into one shared trunk ──
+    bus_groups: Dict[Tuple[str, str], dict] = {}
+    if bus_mode:
+        pair_edges: Dict[Tuple[str, str], list] = {}
+        for e in edges:
+            pair_edges.setdefault((e["src"], e["tgt"]), []).append(e)
+        for pair, es in pair_edges.items():
+            if len(es) < bus_min:
+                continue
+            c_shared, ys, ok = None, [], True
+            for e in es:
+                x1, y1, f1 = symbols[e["src"]].pin_pos(e["sp"])
+                x2, y2, f2 = symbols[e["tgt"]].pin_pos(e["tp"])
+                c1 = col_of[e["src"]] + (1 if f1 > 0 else 0)
+                c2 = col_of[e["tgt"]] + (1 if f2 > 0 else 0)
+                if c1 != c2 or (c_shared is not None and c_shared != c1):
+                    ok = False
+                    break
+                c_shared = c1
+                ys += [y1, y2]
+            if not ok:
+                continue  # falls back to individual wires for this group
+            y_min, y_max = min(ys), max(ys)
+            t = channels[c_shared].alloc(y_min, y_max)
+            bus_groups[pair] = {"track": t, "y_min": y_min, "y_max": y_max, "edges": es}
+    bus_edge_to_group = {id(e): (pair, g) for pair, g in bus_groups.items()
+                        for e in g["edges"]}
+
     def _clear_run(y: float, c_from: int, c_to: int) -> bool:
         """Is a horizontal run at y clear of all symbol bodies between
         channels c_from and c_to (exclusive columns c_from..c_to-1)?"""
@@ -701,8 +739,15 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
 
     routes = []
     for e in sorted(edges, key=_span):
+        is_bus = id(e) in bus_edge_to_group
         x1, y1, f1 = symbols[e["src"]].pin_pos(e["sp"])
         x2, y2, f2 = symbols[e["tgt"]].pin_pos(e["tp"])
+        if is_bus:
+            _, g = bus_edge_to_group[id(e)]
+            t = g["track"]
+            pts = [(x1, y1), (t, y1), (t, y2), (x2, y2)]
+            routes.append((e, pts, f2, True))
+            continue
         c1 = col_of[e["src"]] + (1 if f1 > 0 else 0)
         c2 = col_of[e["tgt"]] + (1 if f2 > 0 else 0)
         if c1 == c2:
@@ -719,7 +764,7 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
             t1 = channels[c1].alloc(y1, yc)
             t2 = channels[c2].alloc(yc, y2)
             pts = [(x1, y1), (t1, y1), (t1, yc), (t2, yc), (t2, y2), (x2, y2)]
-        routes.append((e, pts, f2))
+        routes.append((e, pts, f2, False))
 
     corridor_bottom = (corridor.origin
                        + len(corridor.tracks) * TRACK_PITCH + 20)
@@ -737,12 +782,28 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
     for e in edges:
         fanout[(e["src"], e["sp"])] = fanout.get((e["src"], e["sp"]), 0) + 1
 
-    for e, pts, f2 in routes:
+    drawn_trunks = set()
+    for e, pts, f2, is_bus in routes:
         cls = classify_signal(e["sig"])
         color = SIGNAL_CLASSES[cls]["color"]
         width = 3 if cls in ("power", "motor") else 2
         dashed = cls == "ground"
-        sh.polyline(pts, color, width, dashed)
+        if is_bus:
+            pair, g = bus_edge_to_group[id(e)]
+            if pair not in drawn_trunks:
+                drawn_trunks.add(pair)
+                t = g["track"]
+                sh.line(t, g["y_min"], t, g["y_max"], "black", 5)
+                midy = (g["y_min"] + g["y_max"]) / 2
+                sh.line(t - 7, midy - 7, t + 7, midy + 3, "black", 2)
+                sh.line(t - 7, midy - 1, t + 7, midy + 9, "black", 2)
+                sh.text(t + 12, midy, f"{len(g['edges'])} signals",
+                        size=9, bold=True, anchor="lm", bg="white")
+            (x1, y1), _, _, (x2, y2) = pts
+            sh.line(x1, y1, g["track"], y1, color, width)
+            sh.line(g["track"], y2, x2, y2, color, width)
+        else:
+            sh.polyline(pts, color, width, dashed)
         # arrowhead into the target pin (points opposite the stub facing)
         ax, ay = pts[-1]
         d = -f2
@@ -766,7 +827,11 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
                         or bb[3] < o[1] or bb[1] > o[3])
                    for o in placed_labels)
 
-    for e, pts, _ in routes:
+    for e, pts, _, is_bus in routes:
+        if is_bus:
+            # trunk already carries the "N signals" label; the pin name on
+            # the component body identifies each individual tap
+            continue
         cls = classify_signal(e["sig"])
         color = SIGNAL_CLASSES[cls]["color"]
         tw = sh.text_w(e["sig"], 9)
