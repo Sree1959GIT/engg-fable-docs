@@ -1,4 +1,4 @@
-"""web_ui.py — Streamlit wizard for the documentation pipeline (v10).
+"""web_ui.py — Streamlit wizard for the documentation pipeline (v12).
 
 Workflow:
   1. UPLOAD       multiple files (canonical or free-form) + document title /
@@ -10,16 +10,23 @@ Workflow:
                   the BOM; if items remain TBD, a gaps report is shown for a
                   final check before proceeding
   4. AGENTS       the app presents the agent roster (sized to the detected
-                  hardware) for acceptance before work starts
+                  hardware) for acceptance, plus a chat box for any
+                  system-wide instructions before generation starts — useful
+                  when you don't yet know how many sub-modules exist
   5. GENERATE     pipeline with live agent status (diagram verification +
-                  SME review) → draft preview with a feedback box next to
-                  every module (highlighted while pending) → targeted
-                  rework of only the flagged modules → Approve → downloads
+                  SME review) → draft preview → a SINGLE chat box drives
+                  rework for any module (or System Overview, or all of
+                  them): the assistant restates what it understood and asks
+                  for confirmation before applying anything → Approve →
+                  downloads
 
 All inputs and curated data are also saved under input/ for traceability.
+
+Every step (2-5) has a "← Back" button to the previous step.
 """
 import io
 import os
+import re
 
 import pandas as pd
 import streamlit as st
@@ -27,7 +34,7 @@ import streamlit as st
 from src import config
 from src.hardware import describe_profile, detect_profile
 from src.input_parser import parse_any
-from src.llm_client import llm_available
+from src.llm_client import ask_llm, llm_available
 from src.wiring_extractor import (
     CANONICAL_COLUMNS,
     ITEM_TYPES,
@@ -55,9 +62,15 @@ ss = st.session_state
 ss.setdefault("step", 1)
 ss.setdefault("supervisor", None)
 ss.setdefault("show_gaps", False)
+ss.setdefault("setup_chat", [])
+ss.setdefault("review_chat", [])
+ss.setdefault("pending_action", None)
 
 _EDIT_COLS = ["Subsystem_Name", "Component_ID", "Source_Pin",
               "Target_ID", "Target_Pin", "Signal_Name"]
+_CONFIRM_WORDS = {"yes", "y", "confirm", "confirmed", "proceed", "go ahead",
+                  "goahead", "ok", "okay", "do it", "apply", "sure", "yep"}
+_CANCEL_WORDS = {"no", "n", "cancel", "stop", "nevermind", "never mind", "skip"}
 os.makedirs("input", exist_ok=True)
 
 
@@ -128,6 +141,77 @@ def _finalize_bom(edited: pd.DataFrame):
     st.rerun()
 
 
+def _back_button(target_step: int, label: str = "← Back"):
+    if st.button(label, key=f"back_to_{target_step}"):
+        ss.step = target_step
+        st.rerun()
+
+
+def _run_with_progress(fn, *args, spinner_label="Working...", **kwargs):
+    """Run a supervisor action with a progress display bound to THIS script
+    run, then release the callback immediately afterward. sv (in
+    session_state) persists across reruns but Streamlit UI containers do
+    not — leaving a stale callback around is what previously caused a
+    blank/broken page on the next action."""
+    sv = ss.supervisor
+    box = st.empty()
+    sv.progress_callback = lambda stage, detail, _b=box: _b.write(
+        f"{stage}" + (f" — {detail}" if detail else ""))
+    with st.spinner(spinner_label):
+        result = fn(*args, **kwargs)
+    sv.progress_callback = None
+    box.empty()
+    return result
+
+
+# ── Chat intent parsing (fully offline; LLM only used to rephrase) ───────
+def _module_display_names(sv) -> list:
+    return list(sv.state["descriptions"].keys())
+
+
+def _parse_targets(text: str, module_names: list) -> list:
+    low = " " + text.lower() + " "
+    targets = []
+    if any(p in low for p in (" system overview", " overall system",
+                              " whole system", " system diagram",
+                              " system description", " system block")):
+        targets.append("System Overview")
+    if any(p in low for p in (" all modules", " every module",
+                              " all sub-modules", " all submodules",
+                              " entire manual", " whole manual", " everything")):
+        return list(module_names) + (["System Overview"]
+                                     if "System Overview" not in targets else [])
+    for m in module_names:
+        mn = m.replace("_", " ").lower()
+        if re.search(r"\b" + re.escape(mn) + r"\b", low) or \
+           re.search(r"\b" + re.escape(m.lower()) + r"\b", low):
+            if m not in targets:
+                targets.append(m)
+    return targets
+
+
+def _classify_message(text: str, module_names: list) -> dict:
+    low = text.strip().lower().rstrip("!.")
+    words = re.findall(r"[a-z']+", low)
+    first_word = words[0] if words else ""
+    # exact short replies, or a leading confirm/cancel word ("yes please",
+    # "no thanks") — but only when that's clearly the whole point of the
+    # message (short reply), so a longer instruction that happens to start
+    # with "no, instead do X on Y" isn't misread as a bare cancellation
+    if low in _CONFIRM_WORDS or (first_word in _CONFIRM_WORDS and len(words) <= 3):
+        return {"kind": "confirm"}
+    if low in _CANCEL_WORDS or (first_word in _CANCEL_WORDS and len(words) <= 3):
+        return {"kind": "cancel"}
+    targets = _parse_targets(text, module_names)
+    return {"kind": "instruction", "targets": targets, "instruction": text.strip()}
+
+
+def _render_chat(history: list):
+    for msg in history:
+        with st.chat_message(msg["role"]):
+            st.write(msg["content"])
+
+
 # ── Step 1: Upload & document setup ───────────────────────────────────────
 if ss.step == 1:
     st.header("Step 1 · Upload Input Data & Document Setup")
@@ -159,9 +243,13 @@ if ss.step == 1:
             "Use signal-bus style for wiring diagrams: group 3+ signals "
             "between the same two components into one shared bus line "
             "with a tick+count label, instead of drawing every wire "
-            "individually (you can also request/undo this per-module later "
-            "in the review step by typing 'bus' in that module's feedback box)",
+            "individually (you can also request/undo this later for any "
+            "module through the chat assistant in the review step)",
             value=ss.get("bus_mode", False))
+        st.caption("More detailed instructions, or requests you can't fully "
+                   "articulate yet, can also be given later via the chat "
+                   "assistant on the Agent Roster and Review steps — you "
+                   "don't need to know how many sub-modules exist yet.")
 
     if uploads and st.button("Analyze Files", type="primary"):
         config.DOC_NUMBER = doc_number or config.DOC_NUMBER
@@ -201,6 +289,7 @@ if ss.step == 1:
 
 # ── Step 2: Review extracted connections ─────────────────────────────────
 elif ss.step == 2:
+    _back_button(1)
     st.header("Step 2 · Review Extracted Connections")
     for n in ss.get("notes", []):
         st.write(n)
@@ -240,6 +329,7 @@ elif ss.step == 2:
 
 # ── Step 3: Component inventory / BOM curation loop ──────────────────────
 elif ss.step == 3:
+    _back_button(2)
     st.header("Step 3 · Component Inventory & BOM Curation")
     inv = ss.inventory
     n_ref = int((~inv["Item_Type"].isin(
@@ -325,55 +415,69 @@ elif ss.step == 3:
     with st.expander("Preview aggregated BOM (physical items only, with quantities)"):
         st.dataframe(inventory_to_bom(edited), width="stretch")
 
-# ── Step 4: Agent roster acceptance ───────────────────────────────────────
+# ── Step 4: Agent roster acceptance + pre-generation chat ────────────────
 elif ss.step == 4:
     sv = ss.supervisor
+    _back_button(3, "← Back to BOM")
     st.header("Step 4 · Agent Roster — review & accept")
     st.write(f"Hardware detected: **{describe_profile()}**")
-    if ss.get("bus_mode"):
+    if sv.state.get("bus_mode"):
         st.caption("Diagram style: signal-bus grouping enabled for wiring sheets.")
     st.write("These agents will work on your documentation. Verification "
              "agents run automatically and request rework from the "
              "generation agents when they find problems.")
     st.dataframe(pd.DataFrame(sv.planned_agents()), width="stretch", hide_index=True)
+
+    st.subheader("Tell the assistant about this system (optional)")
+    st.caption("You don't need to know the sub-module names yet — describe "
+               "what you want in your own words: 'use bus-style wiring "
+               "diagrams', 'make the descriptions more elaborate', 'the "
+               "power section is critical, be extra thorough there', "
+               "paste in extra background, etc. Skip this if you have "
+               "nothing to add.")
+    _render_chat(ss.setup_chat)
+    note = st.chat_input("Type instructions for the assistant, or leave blank and press Accept & Start")
+    if note:
+        ss.setup_chat.append({"role": "user", "content": note})
+        sv.state["expectations"] = (
+            (sv.state.get("expectations", "") + "; ") if sv.state.get("expectations") else ""
+        ) + note
+        low = note.lower()
+        reply = "Noted — I'll factor this in when generating the manual."
+        if "bus" in low and "no bus" not in low and "without bus" not in low:
+            sv.state["bus_mode"] = True
+            reply += " Signal-bus style wiring diagrams are now enabled."
+        ss.setup_chat.append({"role": "assistant", "content": reply})
+        st.rerun()
+
     c1, c2 = st.columns(2)
     with c1:
         if st.button("Accept & Start ▶", type="primary", width="stretch"):
             ss.step = 5
             st.rerun()
     with c2:
-        if st.button("← Back to BOM", width="stretch"):
+        if st.button("← Back to BOM", width="stretch", key="back4b"):
             ss.step = 3
             st.rerun()
 
-# ── Step 5: Generate → review → per-module feedback → approve ───────────
+# ── Step 5: Generate → review → chat-driven rework → approve ────────────
 elif ss.step == 5:
     sv = ss.supervisor
+    _back_button(4, "← Back to Agent Roster")
     st.header("Step 5 · Generate & Review the Manual")
     st.info(f"Status: {sv.state['status']} | Cycle: #{sv.state['cycle_count']}")
 
     if sv.state["status"] == "idle":
         if st.button("Run Pipeline ▶", type="primary"):
-            progress = st.status("Running pipeline...", expanded=True)
-            sv.progress_callback = lambda stage, detail: progress.write(
-                f"{stage}" + (f" — {detail}" if detail else ""))
-            with st.spinner("Agents working..."):
-                sv.run_generation_cycle()
-            progress.update(label="Pipeline complete", state="complete")
-            # Clear immediately: this closure is bound to a container that
-            # dies with THIS script run. Streamlit reruns the whole script
-            # on every interaction, and sv (in session_state) persists
-            # across runs — a stale reference here previously caused a
-            # blank/broken page whenever a later action (e.g. per-module
-            # rework) tried to write into this now-dead container.
-            sv.progress_callback = None
+            _run_with_progress(sv.run_generation_cycle,
+                              spinner_label="Agents working...")
             st.rerun()
 
     elif sv.state["status"] in ("awaiting_review", "reviewing"):
-        st.success("Draft generated — expand a module, click 💬 Feedback to "
-                   "add corrections or style instructions (e.g. 'use bus "
-                   "style for this diagram'), then use Request Rework below "
-                   "to apply ONLY the modules you've flagged.")
+        st.success("Draft generated — review below. Use the chat assistant "
+                   "at the bottom to request changes for any module, "
+                   "System Overview, or all of them: name what you want "
+                   "changed and the assistant will confirm before applying it.")
 
         dr = sv.state.get("diagram_reviews", {})
         sr = sv.state.get("sme_reviews", {})
@@ -382,9 +486,12 @@ elif ss.step == 5:
         st.caption(f"Diagram Review agent: {ok_d}/{len(dr)} sheets verified ✓ · "
                    f"SME Review agent: {ok_s}/{len(sr)} descriptions approved ✓")
 
+        pending_targets = (ss.pending_action or {}).get("targets", [])
+
         sys_diag = sv.state["diagrams"].get("System_Overview")
         if sys_diag and os.path.exists(sys_diag):
-            with st.expander("System Overview", expanded=True):
+            badge = "🟧 " if "System Overview" in pending_targets else ""
+            with st.expander(f"{badge}System Overview", expanded=True):
                 st.image(sys_diag)
                 for k in sorted(k for k in sv.state["diagrams"]
                                 if k.startswith("System_Overview_Sheet")):
@@ -394,58 +501,84 @@ elif ss.step == 5:
         for sn, d in sv.state["descriptions"].items():
             dmark = "✓" if dr.get(sn, {}).get("status") == "pass" else "⚠"
             smark = "✓" if sr.get(sn, {}).get("status") == "pass" else "⚠"
-            fb_key = f"fbbox_{sn}"
-            toggle_key = f"fbshow_{sn}"
-            ss.setdefault(toggle_key, False)
-            pending = bool(st.session_state.get(fb_key, "").strip())
-            badge = "🟧 " if pending else ""
+            badge = "🟧 " if sn in pending_targets else ""
+            with st.expander(f"{badge}{sn.replace('_', ' ')}  ·  diagram {dmark} · text {smark}"):
+                ip = sv.state["diagrams"].get(sn)
+                if ip and os.path.exists(ip):
+                    st.image(ip)
+                st.caption("Diagram verification: "
+                           + dr.get(sn, {}).get("detail", "n/a"))
+                if isinstance(d, dict):
+                    st.write(d.get("full_description", ""))
+                    if d.get("role_in_system"):
+                        st.markdown("**Role in the Overall System**")
+                        st.write(d["role_in_system"])
 
-            header_col, btn_col = st.columns([6, 1])
-            with header_col:
-                exp = st.expander(
-                    f"{badge}{sn.replace('_', ' ')}  ·  diagram {dmark} · text {smark}",
-                    expanded=pending)
-            with btn_col:
-                if st.button("💬 Feedback", key=f"fbbtn_{sn}"):
-                    ss[toggle_key] = not ss[toggle_key]
+        st.divider()
+        st.subheader("💬 Chat with the assistant to request changes")
+        st.caption("Name a module (e.g. 'BB3'), say 'System Overview', or "
+                   "'all modules' — the assistant restates what it "
+                   "understood and asks you to confirm before changing "
+                   "anything.")
+        _render_chat(ss.review_chat)
+        user_msg = st.chat_input("What would you like to change?")
+        if user_msg:
+            ss.review_chat.append({"role": "user", "content": user_msg})
+            module_names = _module_display_names(sv)
+            intent = _classify_message(user_msg, module_names)
 
-            with exp:
-                if pending:
-                    st.caption("🟧 Feedback pending — will be applied on Request Rework")
-                if ss[toggle_key]:
-                    left, right = st.columns([3, 2])
+            if ss.pending_action and intent["kind"] == "confirm":
+                pa = ss.pending_action
+                lines = []
+                with st.spinner("Applying feedback..."):
+                    box = st.empty()
+                    sv.progress_callback = lambda stage, detail, _b=box: _b.write(
+                        f"{stage}" + (f" — {detail}" if detail else ""))
+                    for tgt in pa["targets"]:
+                        if tgt == "System Overview":
+                            sv.rework_system(pa["instruction"])
+                            lines.append("✅ System Overview updated.")
+                        else:
+                            sv.rework_module(tgt, pa["instruction"])
+                            lines.append(f"✅ {tgt.replace('_', ' ')} updated.")
+                    sv.progress_callback = None
+                    box.empty()
+                ss.review_chat.append({"role": "assistant", "content": "\n".join(lines)})
+                ss.pending_action = None
+                st.rerun()
+
+            elif ss.pending_action and intent["kind"] == "cancel":
+                ss.review_chat.append({"role": "assistant",
+                                       "content": "Cancelled — no changes made."})
+                ss.pending_action = None
+                st.rerun()
+
+            else:
+                targets = intent.get("targets", [])
+                instruction = intent.get("instruction", user_msg)
+                if not targets:
+                    avail = ", ".join(m.replace("_", " ") for m in module_names)
+                    reply = (f"I couldn't tell which module you mean. Available: "
+                             f"{avail}, or **System Overview**, or say "
+                             f"'all modules'. Could you clarify?")
                 else:
-                    left, right = st.container(), None
-                with left:
-                    ip = sv.state["diagrams"].get(sn)
-                    if ip and os.path.exists(ip):
-                        st.image(ip)
-                    st.caption("Diagram verification: "
-                               + dr.get(sn, {}).get("detail", "n/a"))
-                    if isinstance(d, dict):
-                        st.write(d.get("full_description", ""))
-                        if d.get("role_in_system"):
-                            st.markdown("**Role in the Overall System**")
-                            st.write(d["role_in_system"])
-                if right is not None:
-                    with right:
-                        st.text_area(
-                            "Feedback for this module (corrections, or "
-                            "presentation/style instructions for the text "
-                            "and/or diagram)", key=fb_key, height=220)
-                        if st.button(f"Rework now ▶", key=f"nowbtn_{sn}"):
-                            fb_text = st.session_state.get(fb_key, "").strip()
-                            if fb_text:
-                                prog = st.empty()
-                                sv.progress_callback = lambda stage, detail, _p=prog: _p.write(
-                                    f"{stage}" + (f" — {detail}" if detail else ""))
-                                with st.spinner(f"Reworking {sn.replace('_', ' ')}..."):
-                                    sv.rework_module(sn, fb_text)
-                                sv.progress_callback = None
-                                st.session_state[fb_key] = ""
-                                st.rerun()
-                            else:
-                                st.warning("Enter feedback text first.")
+                    tgt_list = ", ".join(t if t == "System Overview"
+                                         else t.replace("_", " ") for t in targets)
+                    restated = instruction
+                    if llm_available():
+                        paraphrase = ask_llm(
+                            "Rephrase this documentation change request in one "
+                            "short, precise sentence, keeping the same meaning "
+                            f"(do not add anything new): \"{instruction}\"",
+                            max_tokens=80)
+                        if paraphrase and 10 < len(paraphrase) < 300:
+                            restated = paraphrase.strip()
+                    reply = (f"I'll apply this to **{tgt_list}**: \"{restated}\"\n\n"
+                             "Reply **yes** to proceed, or tell me more / a "
+                             "different module.")
+                    ss.pending_action = {"targets": targets, "instruction": instruction}
+                ss.review_chat.append({"role": "assistant", "content": reply})
+                st.rerun()
 
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -463,45 +596,18 @@ elif ss.step == 5:
                                _xlsx_bytes(ss.df_bom), "BOM_curated.xlsx",
                                width="stretch")
 
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3 = st.columns(3)
         with col1:
             if st.button("Approve ✔", type="primary", width="stretch"):
                 sv.approve()
                 st.balloons()
                 st.rerun()
         with col2:
-            if st.button("Request Rework ↺ (flagged modules only)",
-                         width="stretch"):
-                targets = [sn for sn in sv.state["descriptions"]
-                          if st.session_state.get(f"fbbox_{sn}", "").strip()]
-                if not targets:
-                    st.info("Nothing to rework — no feedback was entered "
-                            "for any module.")
-                else:
-                    prog = st.status(f"Reworking {len(targets)} module(s)...",
-                                     expanded=True)
-                    sv.progress_callback = lambda stage, detail, _p=prog: _p.write(
-                        f"{stage}" + (f" — {detail}" if detail else ""))
-                    for sn in targets:
-                        fb_text = st.session_state[f"fbbox_{sn}"].strip()
-                        prog.write(f"Reworking {sn.replace('_', ' ')}...")
-                        sv.rework_module(sn, fb_text)
-                        st.session_state[f"fbbox_{sn}"] = ""
-                        prog.write(f"✓ {sn.replace('_', ' ')} done")
-                    prog.update(label="Rework complete", state="complete")
-                    sv.progress_callback = None
-                    st.rerun()
-        with col3:
             if st.button("↻ Full Regenerate (entire pipeline)", width="stretch"):
-                progress = st.status("Regenerating everything...", expanded=True)
-                sv.progress_callback = lambda stage, detail: progress.write(
-                    f"{stage}" + (f" — {detail}" if detail else ""))
-                with st.spinner("Agents working..."):
-                    sv.run_generation_cycle()
-                progress.update(label="Pipeline complete", state="complete")
-                sv.progress_callback = None
+                _run_with_progress(sv.run_generation_cycle,
+                                   spinner_label="Regenerating everything...")
                 st.rerun()
-        with col4:
+        with col3:
             if st.button("← Back to BOM", width="stretch"):
                 ss.step = 3
                 st.rerun()
@@ -519,6 +625,7 @@ elif ss.step == 5:
         if st.button("Start a new manual"):
             for k in ("step", "supervisor", "df_conn", "df_bom", "inventory",
                       "part_hints", "notes", "reference_context",
-                      "expectations", "show_gaps", "bus_mode"):
+                      "expectations", "show_gaps", "bus_mode",
+                      "setup_chat", "review_chat", "pending_action"):
                 ss.pop(k, None)
             st.rerun()

@@ -271,6 +271,35 @@ class SupervisorAgent:
         self.state["status"] = "awaiting_review"
         return self.state
 
+    def rework_system(self, feedback: str) -> dict:
+        """Regenerate the system-level description (and, if the feedback
+        mentions the diagram, the system block diagram) from reviewer
+        feedback, and reassemble the documents."""
+        self._progress("System rework", "applying feedback")
+        fb_low = feedback.lower()
+        if any(w in fb_low for w in ("diagram", "wiring", "block", "bus", "picture")):
+            try:
+                registry = self.state["registry"]
+                df_conn = self.state["df_connectivity"]
+                sys_diag = DiagramLeadAgent.build_system_diagram(df_conn, registry)
+                if sys_diag:
+                    self.state["diagrams"]["System_Overview"] = sys_diag
+                for i, p in enumerate(
+                        DiagramLeadAgent.build_system_diagram_sheets(df_conn, registry),
+                        start=1):
+                    self.state["diagrams"][f"System_Overview_Sheet{i}"] = p
+            except Exception as e:
+                print(f"  ⚠ System diagram rework failed: {e}")
+
+        self.state["system_description"] = DescriptionAgent.describe_system(
+            self._sys_name(), self.state["descriptions"], self.state["bridges"],
+            feedback, reference_context=self.state["reference_context"])
+
+        self._progress("System rework", "reassembling documents")
+        self.state["docs"] = DocumentationAgent.run(self.state)
+        self.state["status"] = "awaiting_review"
+        return self.state
+
     def submit_feedback(self, fb: str):
         self.state["rework_feedback"] = fb
         self.state["status"] = "reviewing"
