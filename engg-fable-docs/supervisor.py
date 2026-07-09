@@ -34,6 +34,10 @@ MAX_DIAGRAM_REWORK = 2   # verification-driven regeneration attempts per sheet
 MAX_DESC_REWORK = 1      # SME-driven regeneration attempts per description
 
 
+class PipelineCancelled(Exception):
+    """Raised at a checkpoint when the user pressed Cancel."""
+
+
 class SupervisorAgent:
     def __init__(self, df_connectivity: pd.DataFrame, df_bom: pd.DataFrame,
                  doc_title: str = "", reference_context: str = "",
@@ -61,6 +65,33 @@ class SupervisorAgent:
             "cycle_count": 0,
         }
         self.progress_callback = None  # optional fn(stage: str, detail: str)
+        # Thread-safe progress log + cooperative pause/cancel controls.
+        # The web UI runs the pipeline in a BACKGROUND thread (so its
+        # Pause/Cancel buttons stay clickable) and polls progress_log;
+        # background threads must never touch Streamlit directly.
+        self.progress_log: list = []
+        self.control = {"pause": False, "cancel": False}
+
+    # ── pause / cancel (checked at checkpoints between work items) ───────
+    def pause(self):
+        self.control["pause"] = True
+        self.progress_log.append("⏸ Paused — will hold at the next checkpoint")
+
+    def resume(self):
+        self.control["pause"] = False
+        self.progress_log.append("▶ Resumed")
+
+    def cancel(self):
+        self.control["cancel"] = True
+        self.control["pause"] = False
+        self.progress_log.append("⛔ Cancel requested — stopping at the next checkpoint")
+
+    def _checkpoint(self):
+        import time as _t
+        while self.control["pause"] and not self.control["cancel"]:
+            _t.sleep(0.4)
+        if self.control["cancel"]:
+            raise PipelineCancelled()
 
     # ── introspection for the UI's agent-acceptance step ─────────────────
     def planned_agents(self) -> list:
@@ -83,7 +114,9 @@ class SupervisorAgent:
         ]
 
     def _progress(self, stage: str, detail: str = ""):
-        print(f"\n{stage}" + (f" — {detail}" if detail else ""))
+        line = f"{stage}" + (f" — {detail}" if detail else "")
+        print(f"\n{line}")
+        self.progress_log.append(line)
         if self.progress_callback:
             try:
                 self.progress_callback(stage, detail)
@@ -155,11 +188,22 @@ class SupervisorAgent:
         df_conn = self.state["df_connectivity"]
         df_bom = self.state["df_bom"]
         print(f"\n{'=' * 60}\nSUPERVISOR: Cycle {self.state['cycle_count']}\n{'=' * 60}")
+        self.control = {"pause": False, "cancel": False}
         self._progress("Hardware profile", describe_profile(self.profile))
         if not llm_available():
             print("  (LLM offline — running with programmatic generation only)")
+        try:
+            return self._cycle_body(df_conn, df_bom, feedback)
+        except PipelineCancelled:
+            self.state["status"] = "cancelled"
+            self._progress("Pipeline cancelled",
+                           "partial results kept; run again or go back a step")
+            return self.state
+
+    def _cycle_body(self, df_conn, df_bom, feedback) -> dict:
 
         # ── Stage 0 ──
+        self._checkpoint()
         self._progress("Stage 0: Building component registry")
         registry = build_component_registry(df_conn, df_bom)
         self.state["registry"] = registry
@@ -185,6 +229,9 @@ class SupervisorAgent:
                     self.state["research_cache"][k] = f.result()
                 except Exception as e:
                     print(f"  ⚠ Research failed for {k}: {e}")
+                if self.control["cancel"]:
+                    ex.shutdown(wait=False, cancel_futures=True)
+                    raise PipelineCancelled()
 
         # ── Stage 2a: diagrams + verification (CPU-bound pool) ──
         self._progress("Stage 2a: Generating diagrams",
@@ -199,6 +246,9 @@ class SupervisorAgent:
             }
             for f in concurrent.futures.as_completed(diag_f):
                 s = diag_f[f]
+                if self.control["cancel"]:
+                    ex.shutdown(wait=False, cancel_futures=True)
+                    raise PipelineCancelled()
                 try:
                     path, report = f.result()
                     self.state["diagrams"][s] = path
@@ -224,6 +274,7 @@ class SupervisorAgent:
                        "SME review on")
         prior_context = ""
         for s in subs:
+            self._checkpoint()
             self._progress("Stage 2b", s)
             d, review = self._description_with_review(
                 s, df_conn[df_conn["Subsystem_Name"] == s], prior_context, feedback)
@@ -234,6 +285,7 @@ class SupervisorAgent:
             prior_context += f"- {s.replace('_', ' ')}: {d.get('overview', '')}\n"
 
         # ── Stage 3 ──
+        self._checkpoint()
         self._progress("Stage 3: Writing system description")
         self.state["system_description"] = DescriptionAgent.describe_system(
             self._sys_name(), self.state["descriptions"], self.state["bridges"],

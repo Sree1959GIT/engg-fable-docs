@@ -27,6 +27,8 @@ Every step (2-5) has a "← Back" button to the previous step.
 import io
 import os
 import re
+import threading
+import time
 
 import pandas as pd
 import streamlit as st
@@ -34,6 +36,12 @@ import streamlit as st
 from src import config
 from src.hardware import describe_profile, detect_profile
 from src.input_parser import parse_any
+from src.chat_assistant import (
+    answer_data_question,
+    parse_apply,
+    sme_connection_review,
+    sme_inventory_review,
+)
 from src.llm_client import ask_llm, llm_available
 from src.wiring_extractor import (
     CANONICAL_COLUMNS,
@@ -65,6 +73,68 @@ ss.setdefault("show_gaps", False)
 ss.setdefault("setup_chat", [])
 ss.setdefault("review_chat", [])
 ss.setdefault("pending_action", None)
+ss.setdefault("sme_chat_conn", [])
+ss.setdefault("sme_chat_inv", [])
+ss.setdefault("sme_sug_conn", [])
+ss.setdefault("sme_sug_inv", [])
+ss.setdefault("audit", [])
+ss.setdefault("pipe_thread", None)
+
+
+def _audit(entry: str):
+    ss.audit.append(entry)
+
+
+def _is_question(text: str) -> bool:
+    low = text.strip().lower()
+    first = low.split()[0] if low.split() else ""
+    return "?" in low or first in {
+        "what", "which", "how", "why", "where", "who", "list", "show",
+        "tell", "explain", "describe", "does", "is", "are", "can"}
+
+
+def _sme_chat_panel(phase: str, suggestions_key: str, chat_key: str,
+                    run_review, apply_action):
+    """Shared SME-review chat: 'Run SME Review' produces numbered
+    suggestions; the user can accept actionable ones ('apply 1', 'apply
+    all') or ask free questions about the data."""
+    with st.expander(f"🧑‍🔬 SME review & chat — {phase}", expanded=bool(ss[chat_key])):
+        c1, c2 = st.columns([1, 3])
+        with c1:
+            if st.button("Run SME Review", key=f"smebtn_{suggestions_key}"):
+                sugs = run_review()
+                ss[suggestions_key] = sugs
+                body = "\n".join(f"**{x['n']}.** {x['text']}" for x in sugs)
+                actionable = [x for x in sugs if x["action"]]
+                if actionable:
+                    body += ("\n\nSay **apply N** (e.g. 'apply 1'), "
+                             "**apply all**, or ask me anything about the data.")
+                ss[chat_key].append({"role": "assistant", "content": body})
+                st.rerun()
+        with c2:
+            st.caption("The SME agent checks the current data for issues and "
+                       "suggests corrections you can accept in the chat. You "
+                       "can also just ask questions ('what is J6 connected "
+                       "to?', 'list the sub-modules').")
+        _render_chat(ss[chat_key])
+        msg = st.chat_input("Ask about the data, or accept suggestions ('apply 1', 'apply all')",
+                            key=f"smein_{suggestions_key}")
+        if msg:
+            ss[chat_key].append({"role": "user", "content": msg})
+            hits = parse_apply(msg, ss[suggestions_key])
+            if hits:
+                results = [apply_action(h) for h in hits]
+                ss[chat_key].append({"role": "assistant",
+                                     "content": "\n".join(results)})
+            elif _is_question(msg):
+                ans = answer_data_question(msg, ss.df_conn, ss.get("inventory"))
+                ss[chat_key].append({"role": "assistant", "content": ans})
+            else:
+                ss[chat_key].append({"role": "assistant", "content":
+                    "Noted. To act on a suggestion say 'apply N' or 'apply "
+                    "all'; you can also edit the table directly, or ask me a "
+                    "question about the data."})
+            st.rerun()
 
 _EDIT_COLS = ["Subsystem_Name", "Component_ID", "Source_Pin",
               "Target_ID", "Target_Pin", "Signal_Name"]
@@ -130,6 +200,10 @@ def _finalize_bom(edited: pd.DataFrame):
     if len(reference_items):
         reference_items.to_excel("input/system_reference.xlsx", index=False)
 
+    n_tbd = int((edited["Status"] != "OK").sum())
+    _audit(f"BOM built: {len(ss.df_bom)} lines ({n_tbd} items TBD), "
+           f"{len(reference_items)} non-physical items → system_reference.xlsx"
+           + (f", {n_removed} junk connections purged" if n_removed else ""))
     ss.supervisor = SupervisorAgent(
         ss.df_conn, ss.df_bom,
         doc_title=ss.get("doc_title", ""),
@@ -281,6 +355,9 @@ if ss.step == 1:
             ss.expectations = "; ".join(x for x in (exp_bom, exp_manual) if x)
             ss.df_conn, ss.part_hints, ss.notes = df_all, hints, notes
             df_all.to_excel("input/draft_connectivity.xlsx", index=False)
+            ss.audit = []
+            _audit(f"Analyzed {len(uploads)} file(s) → {len(df_all)} connections, "
+                   f"{df_all['Subsystem_Name'].nunique()} sub-modules")
             ss.step = 2
             st.rerun()
         else:
@@ -302,6 +379,20 @@ elif ss.step == 2:
     edited = st.data_editor(ss.df_conn[_EDIT_COLS], num_rows="dynamic",
                             width="stretch", height=430, key="conn_editor")
 
+    def _apply_conn(sug):
+        if sug["action"] == "drop_rows":
+            before = len(ss.df_conn)
+            ss.df_conn = ss.df_conn.drop(
+                index=[i for i in sug["payload"] if i in ss.df_conn.index]
+            ).reset_index(drop=True)
+            n = before - len(ss.df_conn)
+            _audit(f"SME (connections): removed {n} connection(s) — {sug['text'][:80]}")
+            return f"✅ Applied #{sug['n']}: removed {n} connection(s). Table refreshed."
+        return f"#{sug['n']} is informational — nothing to apply."
+
+    _sme_chat_panel("connections", "sme_sug_conn", "sme_chat_conn",
+                    lambda: sme_connection_review(ss.df_conn), _apply_conn)
+
     col_a, col_b, col_c = st.columns([1, 2, 1])
     with col_a:
         st.download_button("Download connections (xlsx)",
@@ -321,8 +412,12 @@ elif ss.step == 2:
                 st.error(f"Missing columns: {missing}")
     with col_c:
         if st.button("Confirm Connections →", type="primary"):
+            before = len(ss.df_conn)
             ss.df_conn = _canonize(edited, ss.sys_name)
             ss.df_conn.to_excel("input/draft_connectivity.xlsx", index=False)
+            delta = before - len(ss.df_conn)
+            _audit(f"Connections confirmed: {len(ss.df_conn)}"
+                   + (f" ({delta} removed in review)" if delta > 0 else ""))
             ss.inventory = build_inventory(ss.df_conn, ss.get("part_hints", {}))
             ss.step = 3
             st.rerun()
@@ -354,6 +449,23 @@ elif ss.step == 3:
                    "Make / Model / Part_Number.")
     else:
         st.success(f"All {len(edited)} items have part information. ✔")
+
+    def _apply_inv(sug):
+        if sug["action"] == "drop_components":
+            ids = set(sug["payload"])
+            ss.inventory = ss.inventory[
+                ~ss.inventory["Component_ID"].astype(str).isin(ids)
+            ].reset_index(drop=True)
+            keep = ss.inventory["Component_ID"].astype(str).tolist()
+            ss.df_conn, n_removed = drop_components(ss.df_conn, keep)
+            _audit(f"SME (BOM): deleted junk components {sorted(ids)} "
+                   f"(+{n_removed} connections)")
+            return (f"✅ Applied #{sug['n']}: deleted {sorted(ids)} and "
+                    f"{n_removed} connection(s) that referenced them.")
+        return f"#{sug['n']} is informational — edit the table to act on it."
+
+    _sme_chat_panel("BOM / inventory", "sme_sug_inv", "sme_chat_inv",
+                    lambda: sme_inventory_review(ss.inventory), _apply_inv)
 
     col_a, col_b, col_c, col_d = st.columns([1, 2, 1, 1])
     with col_a:
@@ -428,25 +540,37 @@ elif ss.step == 4:
              "generation agents when they find problems.")
     st.dataframe(pd.DataFrame(sv.planned_agents()), width="stretch", hide_index=True)
 
-    st.subheader("Tell the assistant about this system (optional)")
-    st.caption("You don't need to know the sub-module names yet — describe "
-               "what you want in your own words: 'use bus-style wiring "
-               "diagrams', 'make the descriptions more elaborate', 'the "
-               "power section is critical, be extra thorough there', "
-               "paste in extra background, etc. Skip this if you have "
-               "nothing to add.")
+    st.subheader("Chat with the assistant (optional)")
+    st.caption("Ask anything about the data being processed ('what is J6 "
+               "connected to?', 'list the sub-modules', 'how many "
+               "components?') or give instructions in your own words "
+               "('use bus-style wiring diagrams', 'make descriptions more "
+               "elaborate', 'the power section is critical'). Instructions "
+               "are remembered and applied during generation. Skip this if "
+               "you have nothing to add.")
     _render_chat(ss.setup_chat)
-    note = st.chat_input("Type instructions for the assistant, or leave blank and press Accept & Start")
+    note = st.chat_input("Ask a question or give an instruction…")
     if note:
         ss.setup_chat.append({"role": "user", "content": note})
-        sv.state["expectations"] = (
-            (sv.state.get("expectations", "") + "; ") if sv.state.get("expectations") else ""
-        ) + note
-        low = note.lower()
-        reply = "Noted — I'll factor this in when generating the manual."
-        if "bus" in low and "no bus" not in low and "without bus" not in low:
-            sv.state["bus_mode"] = True
-            reply += " Signal-bus style wiring diagrams are now enabled."
+        if _is_question(note):
+            reply = answer_data_question(note, ss.df_conn, ss.get("inventory"),
+                                         extra_context=sv.state.get("expectations", ""))
+        else:
+            sv.state["expectations"] = (
+                (sv.state.get("expectations", "") + "; ") if sv.state.get("expectations") else ""
+            ) + note
+            _audit(f"Instruction (Step 4): {note[:100]}")
+            low = note.lower()
+            reply = "Noted — I'll factor this in when generating the manual."
+            if "bus" in low and "no bus" not in low and "without bus" not in low:
+                sv.state["bus_mode"] = True
+                reply += " Signal-bus style wiring diagrams are now enabled."
+            if llm_available():
+                para = ask_llm(
+                    "Restate this documentation instruction in one precise "
+                    f"sentence (add nothing new): \"{note}\"", max_tokens=80)
+                if para and 10 < len(para) < 300:
+                    reply += f"\n\nMy understanding: {para.strip()}"
         ss.setup_chat.append({"role": "assistant", "content": reply})
         st.rerun()
 
@@ -467,10 +591,71 @@ elif ss.step == 5:
     st.header("Step 5 · Generate & Review the Manual")
     st.info(f"Status: {sv.state['status']} | Cycle: #{sv.state['cycle_count']}")
 
-    if sv.state["status"] == "idle":
+    if sv.state["status"] in ("idle", "cancelled"):
+        if sv.state["status"] == "cancelled":
+            st.warning("The previous run was cancelled at your request — "
+                       "partial results were kept. Run again when ready, or "
+                       "go back to adjust the inputs.")
+
+        # ── Context so far: every preference & correction made upstream ──
+        with st.expander("📋 Context so far — preferences & corrections that "
+                         "will shape this run", expanded=True):
+            st.markdown(
+                f"- **System:** {ss.get('sys_name', 'System')} · "
+                f"**Doc title:** {ss.get('doc_title') or '(system name)'} · "
+                f"**Doc no:** {config.DOC_NUMBER}\n"
+                f"- **Data:** {len(ss.df_conn)} connections, "
+                f"{ss.df_conn['Subsystem_Name'].nunique()} sub-modules, "
+                f"{len(ss.get('inventory', []))} BOM items "
+                f"({int((ss.inventory['Status'] != 'OK').sum()) if 'inventory' in ss else 0} TBD)\n"
+                f"- **Diagram style:** "
+                f"{'signal-bus grouping' if sv.state.get('bus_mode') else 'individual wires'}\n"
+                f"- **Reference document:** "
+                f"{'provided (' + str(len(ss.get('reference_context', ''))) + ' chars)' if ss.get('reference_context') else 'none'}")
+            if sv.state.get("expectations"):
+                st.markdown("**Your instructions:**")
+                for e in sv.state["expectations"].split("; "):
+                    if e.strip():
+                        st.markdown(f"- {e.strip()}")
+            if ss.audit:
+                st.markdown("**Corrections made during curation:**")
+                for a in ss.audit:
+                    st.markdown(f"- {a}")
+
         if st.button("Run Pipeline ▶", type="primary"):
-            _run_with_progress(sv.run_generation_cycle,
-                              spinner_label="Agents working...")
+            sv.state["status"] = "generating"
+            sv.progress_callback = None       # background thread: log-only
+            t = threading.Thread(target=sv.run_generation_cycle, daemon=True)
+            t.start()
+            ss.pipe_thread = t
+            st.rerun()
+
+    elif sv.state["status"] == "generating":
+        st.info("⚙ Pipeline running — you can pause or cancel at any time; "
+                "it stops at the next safe checkpoint.")
+        paused = sv.control.get("pause", False)
+        b1, b2, b3 = st.columns(3)
+        with b1:
+            if not paused and st.button("⏸ Pause", width="stretch"):
+                sv.pause()
+                st.rerun()
+            if paused and st.button("▶ Resume", width="stretch", type="primary"):
+                sv.resume()
+                st.rerun()
+        with b2:
+            if st.button("⛔ Cancel", width="stretch"):
+                sv.cancel()
+                st.rerun()
+        with b3:
+            st.caption("Paused ⏸ — holding at checkpoint" if paused
+                       else "Running…")
+        st.code("\n".join(sv.progress_log[-25:]) or "starting…",
+                language=None)
+        t = ss.get("pipe_thread")
+        if t is not None and t.is_alive():
+            time.sleep(1.5)
+            st.rerun()
+        else:
             st.rerun()
 
     elif sv.state["status"] in ("awaiting_review", "reviewing"):
@@ -604,8 +789,11 @@ elif ss.step == 5:
                 st.rerun()
         with col2:
             if st.button("↻ Full Regenerate (entire pipeline)", width="stretch"):
-                _run_with_progress(sv.run_generation_cycle,
-                                   spinner_label="Regenerating everything...")
+                sv.state["status"] = "generating"
+                sv.progress_callback = None
+                t = threading.Thread(target=sv.run_generation_cycle, daemon=True)
+                t.start()
+                ss.pipe_thread = t
                 st.rerun()
         with col3:
             if st.button("← Back to BOM", width="stretch"):
