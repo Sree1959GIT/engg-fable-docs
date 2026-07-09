@@ -112,22 +112,31 @@ class DiagramLeadAgent:
             registry: Dict[str, dict] = None,
             feedback: str = "",
             output_dir: str = DIAGRAM_DIR,
-            bus_mode: bool = False) -> Optional[str]:
+            bus_mode: bool = False,
+            style: str = "auto") -> Optional[str]:
+        """style: 'block' = block+bus diagram (components as blocks, all
+        signals between a pair collapsed into one labelled bus — the style
+        for dense modules); 'detail' = full pin-level schematic;
+        'auto' = block when bus_mode is on and the sheet is dense (>50
+        connections), else detailed (with same-pair bus grouping when
+        bus_mode is on). Reviewer feedback text can override either way."""
         if registry is None:
             registry = build_component_registry(connections)
-        # Natural-language override from reviewer feedback: lets a user ask
-        # for (or turn off) bus-style grouping on a single module's rework
-        # without a dedicated UI control.
         fb_low = (feedback or "").lower()
-        if "bus" in fb_low and ("no bus" in fb_low or "individual wire" in fb_low
-                               or "without bus" in fb_low or "remove bus" in fb_low):
-            bus_mode = False
-        elif "bus" in fb_low:
-            bus_mode = True
-        # Primary path: IEC 60617 schematic renderer (pure Pillow, orthogonal
-        # channel routing, manufacturer-style symbols). Graphviz DOT remains
-        # only as a fallback if the renderer fails on unusual data.
+        if any(w in fb_low for w in ("no bus", "without bus", "remove bus",
+                                     "individual wire", "full schematic",
+                                     "detailed schematic", "all wiring")):
+            style, bus_mode = "detail", False
+        elif "block" in fb_low or "bus" in fb_low:
+            style, bus_mode = "block", True
+        if style == "auto":
+            style = "block" if (bus_mode and len(connections) > 50) else "detail"
         try:
+            if style == "block":
+                from src.schematic_renderer import render_block_bus
+                path = render_block_bus(subsystem, connections, registry, output_dir)
+                if path:
+                    return path
             from src.schematic_renderer import render_schematic
             path = render_schematic(subsystem, connections, registry, output_dir,
                                     bus_mode=bus_mode)

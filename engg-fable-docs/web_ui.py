@@ -288,6 +288,85 @@ def _render_chat(history: list):
 
 # ── Step 1: Upload & document setup ───────────────────────────────────────
 if ss.step == 1:
+    # ── Previous session detection: offer resume before anything else ──
+    snap_path = "input/session_snapshot.json"
+    conn_path = "input/draft_connectivity_final.xlsx"
+    bom_path = "input/bom_worksheet_final.xlsx"
+    if (ss.supervisor is None and os.path.exists(snap_path)
+            and os.path.exists(conn_path) and os.path.exists(bom_path)):
+        import json
+        try:
+            with open(snap_path, encoding="utf-8") as f:
+                snap = json.load(f)
+        except Exception:
+            snap = {}
+        docs = snap.get("docs") or {}
+        docs_exist = os.path.exists(docs.get("docx", "")) and             os.path.exists(docs.get("pdf", ""))
+        with st.container(border=True):
+            st.subheader("⏮ Previous session found")
+            st.write(f"Saved: **{snap.get('saved_at', '?')}** · status: "
+                     f"**{snap.get('status', '?')}** · cycle "
+                     f"#{snap.get('cycle_count', 0)} · "
+                     f"{len(snap.get('descriptions') or {})} module "
+                     f"descriptions on record"
+                     + (" · **manual generated** ✔" if docs_exist else ""))
+            if docs_exist:
+                d1, d2 = st.columns(2)
+                with d1:
+                    with open(docs["docx"], "rb") as f:
+                        st.download_button("Open previous DOCX", f,
+                                           "Technical_User_Manual.docx",
+                                           key="prev_docx")
+                with d2:
+                    with open(docs["pdf"], "rb") as f:
+                        st.download_button("Open previous PDF", f,
+                                           "Technical_User_Manual.pdf",
+                                           key="prev_pdf")
+            r1, r2 = st.columns(2)
+            with r1:
+                if st.button("Resume previous session ▶", type="primary",
+                             width="stretch"):
+                    df_conn = pd.read_excel(conn_path, dtype=str).fillna("")
+                    inv = pd.read_excel(bom_path, dtype=str).fillna("")
+                    ss.df_conn, ss.inventory = df_conn, inv
+                    ss.df_bom = inventory_to_bom(inv)
+                    ss.sys_name = (df_conn["System_Name"].iloc[0]
+                                   if len(df_conn) else "System")
+                    ss.doc_title = snap.get("doc_title", "")
+                    ss.reference_context = snap.get("reference_context", "")
+                    ss.expectations = snap.get("expectations", "")
+                    ss.bus_mode = bool(snap.get("bus_mode"))
+                    sv = SupervisorAgent(
+                        ss.df_conn, ss.df_bom, doc_title=ss.doc_title,
+                        reference_context=ss.reference_context,
+                        expectations=ss.expectations, bus_mode=ss.bus_mode)
+                    sv.restore_snapshot(snap_path)
+                    # registry/analysis aren't JSON-serializable — rebuild
+                    # them from the data (pure pandas, instant) so rework
+                    # after resume has full context
+                    from src.component_registry import build_component_registry
+                    from src.system_analysis import find_bridges, interconnections_for
+                    sv.state["registry"] = build_component_registry(df_conn, ss.df_bom)
+                    sv.state["bridges"] = find_bridges(df_conn)
+                    subs_r = [str(x) for x in df_conn["Subsystem_Name"].unique()]
+                    sv.state["interconnections"] = {
+                        s2: interconnections_for(s2, df_conn) for s2 in subs_r}
+                    # a resumed session is reviewable if docs exist,
+                    # otherwise ready to (re)generate
+                    sv.state["status"] = ("awaiting_review" if docs_exist
+                                          else "idle")
+                    ss.supervisor = sv
+                    _audit("Resumed previous session "
+                           f"(saved {snap.get('saved_at', '?')})")
+                    ss.step = 5 if docs_exist else 4
+                    st.rerun()
+            with r2:
+                if st.button("Start fresh (keep files on disk)",
+                             width="stretch"):
+                    os.remove(snap_path)
+                    st.rerun()
+        st.divider()
+
     st.header("Step 1 · Upload Input Data & Document Setup")
     c1, c2, c3 = st.columns(3)
     with c1:
@@ -540,6 +619,16 @@ elif ss.step == 4:
              "generation agents when they find problems.")
     st.dataframe(pd.DataFrame(sv.planned_agents()), width="stretch", hide_index=True)
 
+    df_subs_names = [str(x) for x in
+                     ss.df_conn["Subsystem_Name"].unique()]
+    st.subheader("Planned outputs — how each module will be documented")
+    st.caption("Based on your instructions so far. Adjust in the chat below "
+               "('make TOP a detailed schematic', 'use block bus for all "
+               "dense modules') — this table updates. Accept & Start is your "
+               "go-ahead.")
+    st.dataframe(pd.DataFrame(sv.planned_outputs()), width="stretch",
+                 hide_index=True)
+
     st.subheader("Chat with the assistant (optional)")
     st.caption("Ask anything about the data being processed ('what is J6 "
                "connected to?', 'list the sub-modules', 'how many "
@@ -562,9 +651,31 @@ elif ss.step == 4:
             _audit(f"Instruction (Step 4): {note[:100]}")
             low = note.lower()
             reply = "Noted — I'll factor this in when generating the manual."
-            if "bus" in low and "no bus" not in low and "without bus" not in low:
+            wants_detail = any(w in low for w in (
+                "no bus", "without bus", "individual wire", "full schematic",
+                "detailed schematic", "all wiring"))
+            mentions_bus = ("bus" in low or "block" in low) and not wants_detail
+            # per-module style overrides when modules are named
+            named = [m for m in df_subs_names
+                     if re.search(r"\b" + re.escape(m.replace("_", " ").lower())
+                                  + r"\b", low)
+                     or re.search(r"\b" + re.escape(m.lower()) + r"\b", low)]
+            if named and (mentions_bus or wants_detail):
+                style = "block" if mentions_bus else "detail"
+                for m in named:
+                    sv.state["diagram_style_overrides"][m] = style
+                reply += (f" Diagram style for {', '.join(named)} set to "
+                          f"{'block + bus' if style == 'block' else 'detailed schematic'} "
+                          "— see the Planned outputs table above.")
+            elif mentions_bus:
                 sv.state["bus_mode"] = True
-                reply += " Signal-bus style wiring diagrams are now enabled."
+                reply += (" Signal-bus style enabled: dense modules (>50 "
+                          "connections) become block+bus diagrams; see the "
+                          "Planned outputs table above for exactly which.")
+            elif wants_detail and not named:
+                sv.state["bus_mode"] = False
+                sv.state["diagram_style_overrides"].clear()
+                reply += " All modules will use detailed pin-level schematics."
             if llm_available():
                 para = ask_llm(
                     "Restate this documentation instruction in one precise "

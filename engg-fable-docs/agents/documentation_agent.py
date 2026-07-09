@@ -157,6 +157,20 @@ class DocumentationAgent:
         docx_path = os.path.join(output_dir, "Technical_User_Manual.docx")
         pdf_path = os.path.join(output_dir, "Technical_User_Manual.pdf")
 
+        # Version history: before overwriting, archive the previous manual
+        # so every rework produces the NEXT revision alongside the old ones.
+        if os.path.exists(docx_path) or os.path.exists(pdf_path):
+            import shutil
+            arch = os.path.join(output_dir, "archive")
+            os.makedirs(arch, exist_ok=True)
+            n = 1
+            while os.path.exists(os.path.join(arch, f"Technical_User_Manual_rev{n}.docx"))                     or os.path.exists(os.path.join(arch, f"Technical_User_Manual_rev{n}.pdf")):
+                n += 1
+            for src_p in (docx_path, pdf_path):
+                if os.path.exists(src_p):
+                    shutil.copy2(src_p, os.path.join(
+                        arch, f"Technical_User_Manual_rev{n}{os.path.splitext(src_p)[1]}"))
+
         df_conn = state.get("df_connectivity", pd.DataFrame())
         sys_name = (str(df_conn["System_Name"].iloc[0])
                     if "System_Name" in df_conn.columns and not df_conn.empty else "System")

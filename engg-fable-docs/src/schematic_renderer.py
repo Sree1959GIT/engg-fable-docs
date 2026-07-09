@@ -916,3 +916,186 @@ def render_schematic(subsystem: str, connections, registry: Dict[str, dict],
     sh.save(png, svg)
     print(f"  ✓ [Schematic] Rendered: {png}")
     return png
+
+
+# ══════════════ Block + bus diagram (dense-module style) ═════════════════
+class BlockSymbol:
+    """Plain block for block+bus sheets: refdes header, type, make/model.
+    Ports are allocated per peer edge on each side."""
+    W = 150
+
+    def __init__(self, cid: str, info: dict, n_left: int, n_right: int):
+        self.cid, self.info = cid, info
+        self.n_left, self.n_right = max(n_left, 0), max(n_right, 0)
+        rows = max(self.n_left, self.n_right, 1)
+        self.h = max(56, rows * 18 + 30)
+        self.w = self.W
+        self.x = self.y = 0.0
+
+    def place(self, x, y):
+        self.x, self.y = x, y
+
+    def bbox(self):
+        return (self.x - BOX_PAD, self.y - 16 - BOX_PAD,
+                self.x + self.w + BOX_PAD, self.y + self.h + 24 + BOX_PAD)
+
+    def port(self, side: int, idx: int):
+        n = self.n_left if side < 0 else self.n_right
+        frac = (idx + 1) / (n + 1)
+        y = self.y + 22 + (self.h - 30) * frac
+        return (self.x if side < 0 else self.x + self.w, y)
+
+    def draw(self, sh: Sheet):
+        sh.rect(self.x, self.y, self.w, self.h, width=2)
+        sh.rect(self.x, self.y, self.w, 18, width=2, fill="#1F4E79")
+        sh.text(self.x + self.w / 2, self.y + 9, self.cid, size=10,
+                bold=True, color="white", anchor="mm")
+        ctype = self.info.get("type") or ""
+        if ctype:
+            sh.text(self.x + self.w / 2, self.y + 28, ctype[:26], size=8,
+                    color="#444444", anchor="mm")
+        part = " ".join(x for x in (self.info.get("make") or "",
+                                    self.info.get("model") or "") if x)
+        if part:
+            sh.text(self.x + self.w / 2, self.y + 41, part[:26], size=8,
+                    color="#333333", anchor="mm")
+
+
+def render_block_bus(subsystem: str, connections, registry: Dict[str, dict],
+                     output_dir: str) -> Optional[str]:
+    """Block+bus wiring sheet for DENSE modules: every component is a block,
+    and ALL signals between a pair of components collapse into one bus line
+    with a tick + 'N signals' label (single signals keep their name and
+    class color). Every underlying signal name is still written into the
+    SVG (invisible metadata) so the Diagram Review agent verifies the sheet
+    losslessly against the connection data."""
+    # aggregate pairs (fold reverse direction into first-seen orientation)
+    pairs: Dict[tuple, dict] = {}
+    for _, r in connections.iterrows():
+        a, b = str(r["Component_ID"]), str(r["Target_ID"])
+        if a == b:
+            continue
+        key = (b, a) if (b, a) in pairs else (a, b)
+        pairs.setdefault(key, {"sigs": []})["sigs"].append(str(r["Signal_Name"]))
+
+    edges = [{"src": a, "tgt": b, "sig": d["sigs"][0]} for (a, b), d in pairs.items()]
+    nodes = sorted({e["src"] for e in edges} | {e["tgt"] for e in edges})
+    if not nodes:
+        return None
+    rank = _component_ranks(edges, nodes)
+    remap = {v: i for i, v in enumerate(sorted(set(rank.values())))}
+    rank = {n: remap[v] for n, v in rank.items()}
+    MAXCOL = 12
+    groups: List[List[str]] = [[] for _ in range(max(rank.values()) + 1)]
+    for n in nodes:
+        groups[rank[n]].append(n)
+    cols: List[List[str]] = []
+    for g in groups:
+        for i in range(0, len(g), MAXCOL):
+            cols.append(g[i:i + MAXCOL])
+    col_of = {n: ci for ci, col in enumerate(cols) for n in col}
+
+    # per-node per-side port slots, one per pair edge
+    side_peers: Dict[str, Dict[int, list]] = {n: {-1: [], 1: []} for n in nodes}
+    for (a, b) in pairs:
+        sa = 1 if col_of[b] >= col_of[a] else -1
+        side_peers[a][sa].append(b)
+        side_peers[b][-sa].append(a)
+
+    symbols = {n: BlockSymbol(n, registry.get(n, {}),
+                              len(side_peers[n][-1]), len(side_peers[n][1]))
+               for n in nodes}
+
+    col_w = [max((symbols[n].w for n in col), default=BlockSymbol.W) for col in cols]
+    col_x, x = [], MARGIN + CHANNEL_W / 2
+    for i in range(len(cols)):
+        col_x.append(x)
+        x += col_w[i] + CHANNEL_W
+    for ci, col in enumerate(cols):
+        y = TOP_MARGIN
+        for n in col:
+            symbols[n].place(col_x[ci], y)
+            y += symbols[n].h + 46
+
+    body_bottom = max(s.y + s.h for s in symbols.values())
+    ncols = len(cols)
+
+    def channel_center(c):
+        if c == 0:
+            return MARGIN + CHANNEL_W / 4
+        if c >= ncols:
+            return col_x[ncols - 1] + col_w[ncols - 1] + CHANNEL_W / 2
+        return col_x[c] - CHANNEL_W / 2
+
+    channels = {c: _TrackAlloc(channel_center(c) - (CHANNEL_W / 2 - 18),
+                               TRACK_PITCH) for c in range(ncols + 1)}
+    corridor = _TrackAlloc(body_bottom + 46, TRACK_PITCH)
+
+    title_h, sheet_w = 54, int(x - CHANNEL_W + MARGIN + CHANNEL_W / 2)
+    routes = []
+    for (a, b), d in pairs.items():
+        sa = 1 if col_of[b] >= col_of[a] else -1
+        ia = side_peers[a][sa].index(b)
+        ib = side_peers[b][-sa].index(a)
+        x1, y1 = symbols[a].port(sa, ia)
+        x2, y2 = symbols[b].port(-sa, ib)
+        c1 = col_of[a] + (1 if sa > 0 else 0)
+        c2 = col_of[b] + (1 if -sa > 0 else 0)
+        if c1 == c2:
+            t = channels[c1].alloc(y1, y2)
+            pts = [(x1, y1), (t, y1), (t, y2), (x2, y2)]
+        else:
+            yc = corridor.alloc(channel_center(c1), channel_center(c2))
+            t1 = channels[c1].alloc(y1, yc)
+            t2 = channels[c2].alloc(yc, y2)
+            pts = [(x1, y1), (t1, y1), (t1, yc), (t2, yc), (t2, y2), (x2, y2)]
+        routes.append(((a, b), d, pts))
+
+    corridor_bottom = corridor.origin + len(corridor.tracks) * TRACK_PITCH + 24
+    sheet_h = int(max(corridor_bottom, body_bottom + 60) + title_h + 60)
+    sh = Sheet(max(sheet_w, 640), sheet_h)
+
+    for (a, b), d, pts in routes:
+        sigs = d["sigs"]
+        if len(sigs) == 1:
+            color = SIGNAL_CLASSES[classify_signal(sigs[0])]["color"]
+            sh.polyline(pts, color, 2)
+            label = sigs[0]
+        else:
+            sh.polyline(pts, "black", 4)
+            label = f"{len(sigs)} signals"
+        (hx1, hy), (hx2, _) = max(zip(pts, pts[1:]),
+                                  key=lambda s: abs(s[1][0] - s[0][0]))
+        mx = (hx1 + hx2) / 2
+        if len(sigs) > 1:
+            sh.line(mx - 6, hy + 6, mx + 6, hy - 6, "black", 2)
+        sh.text(mx, hy - 9, label, size=9, bold=len(sigs) > 1,
+                anchor="mm", bg="white")
+        for sig in sigs:                      # lossless SVG metadata
+            sh.svg_meta_text(sig)
+
+    for n in nodes:
+        symbols[n].draw(sh)
+
+    tb_w = min(560, sheet_w - 2 * MARGIN)
+    tb_x = (max(sheet_w, 640) - tb_w) / 2
+    tb_y = sheet_h - title_h - 8
+    sh.rect(tb_x, tb_y, tb_w, 26, width=2)
+    sh.text(tb_x + tb_w / 2, tb_y + 13,
+            subsystem.replace("_", " ") + " — Block Wiring Diagram (bus)",
+            size=13, bold=True, anchor="mm")
+    from datetime import date as _d
+    cells = [f"Doc: {config.DOC_NUMBER}", f"Rev: {config.DOC_VERSION}",
+             f"Date: {_d.today().isoformat()}", f"Sheet: {subsystem}"]
+    cw = tb_w / len(cells)
+    for i, ctext in enumerate(cells):
+        sh.rect(tb_x + i * cw, tb_y + 26, cw, 22, width=2)
+        sh.text(tb_x + i * cw + cw / 2, tb_y + 37, ctext, size=10, anchor="mm")
+
+    os.makedirs(output_dir, exist_ok=True)
+    safe = re.sub(r"[^A-Za-z0-9_]", "_", subsystem)
+    png = os.path.join(output_dir, f"{safe}_diagram.png")
+    svg = os.path.join(output_dir, f"{safe}_diagram.svg")
+    sh.save(png, svg)
+    print(f"  ✓ [BlockBus] Rendered: {png}")
+    return png

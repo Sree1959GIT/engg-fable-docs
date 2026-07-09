@@ -61,6 +61,7 @@ class SupervisorAgent:
             "system_description": "",
             "docs": {"docx": "", "pdf": ""},
             "rework_feedback": "",
+            "diagram_style_overrides": {},   # {subsystem: 'block'|'detail'}
             "status": "idle",
             "cycle_count": 0,
         }
@@ -92,6 +93,33 @@ class SupervisorAgent:
             _t.sleep(0.4)
         if self.control["cancel"]:
             raise PipelineCancelled()
+
+    # ── planned output per module (shown at Step 4 for user go-ahead) ────
+    def diagram_style_for(self, sub: str, n_conn: int) -> str:
+        ov = self.state.get("diagram_style_overrides", {}).get(sub)
+        if ov in ("block", "detail"):
+            return ov
+        if self.state.get("bus_mode") and n_conn > 50:
+            return "block"
+        return "detail"
+
+    def planned_outputs(self) -> list:
+        df = self.state["df_connectivity"]
+        out = []
+        for sub, g in df.groupby("Subsystem_Name"):
+            sub = str(sub)
+            style = self.diagram_style_for(sub, len(g))
+            out.append({
+                "module": sub.replace("_", " "),
+                "connections": len(g),
+                "diagram": ("block + bus (signals grouped per component pair)"
+                            if style == "block" else
+                            "detailed schematic (pin-level"
+                            + (", same-pair signals bused" if self.state.get("bus_mode") else "")
+                            + ")"),
+                "description": "stage-level functional description + role in system",
+            })
+        return out
 
     # ── introspection for the UI's agent-acceptance step ─────────────────
     def planned_agents(self) -> list:
@@ -134,9 +162,11 @@ class SupervisorAgent:
         Console logging still happens either way."""
         registry = self.state["registry"]
         path, report = None, {"status": "skipped"}
+        style = self.diagram_style_for(sub, len(g))
         for attempt in range(1, MAX_DIAGRAM_REWORK + 1):
             path = DiagramLeadAgent.run(sub, g, registry, feedback,
-                                        bus_mode=self.state.get("bus_mode", False))
+                                        bus_mode=self.state.get("bus_mode", False),
+                                        style=style)
             report = DiagramReviewAgent.verify(sub, g, path)
             if report["status"] != "fail":
                 break
@@ -295,6 +325,7 @@ class SupervisorAgent:
         self._progress("Stage 4: Assembling documents")
         self.state["docs"] = DocumentationAgent.run(self.state)
         self.state["status"] = "awaiting_review"
+        self.save_snapshot()
         print("\n✓ Pipeline complete. Awaiting review.")
         return self.state
 
@@ -307,6 +338,12 @@ class SupervisorAgent:
         if g.empty:
             return self.state
         self._progress("Module rework", f"{sub}: applying feedback")
+        fb_low = feedback.lower()
+        if any(w in fb_low for w in ("no bus", "without bus", "individual wire",
+                                     "full schematic", "detailed schematic")):
+            self.state["diagram_style_overrides"][sub] = "detail"
+        elif "block" in fb_low or "bus" in fb_low:
+            self.state["diagram_style_overrides"][sub] = "block"
         path, dreport = self._diagram_with_review(sub, g, feedback)
         self.state["diagrams"][sub] = path
         self.state["diagram_reviews"][sub] = dreport
@@ -321,6 +358,7 @@ class SupervisorAgent:
         self._progress("Module rework", f"{sub}: reassembling documents")
         self.state["docs"] = DocumentationAgent.run(self.state)
         self.state["status"] = "awaiting_review"
+        self.save_snapshot()
         return self.state
 
     def rework_system(self, feedback: str) -> dict:
@@ -350,7 +388,39 @@ class SupervisorAgent:
         self._progress("System rework", "reassembling documents")
         self.state["docs"] = DocumentationAgent.run(self.state)
         self.state["status"] = "awaiting_review"
+        self.save_snapshot()
         return self.state
+
+    # ── session persistence (resume across app restarts) ────────────────
+    def save_snapshot(self, path: str = "input/session_snapshot.json"):
+        import json, os
+        from datetime import datetime
+        snap = {"saved_at": datetime.now().isoformat(timespec="seconds")}
+        for k in ("descriptions", "system_description", "diagrams",
+                  "diagram_reviews", "sme_reviews", "docs", "cycle_count",
+                  "expectations", "bus_mode", "diagram_style_overrides",
+                  "doc_title", "status", "reference_context"):
+            snap[k] = self.state.get(k)
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(snap, f, default=str)
+        except Exception as e:
+            print(f"  ⚠ snapshot save failed: {e}")
+
+    def restore_snapshot(self, path: str = "input/session_snapshot.json") -> bool:
+        import json, os
+        if not os.path.exists(path):
+            return False
+        try:
+            with open(path, encoding="utf-8") as f:
+                snap = json.load(f)
+            snap.pop("saved_at", None)
+            self.state.update({k: v for k, v in snap.items() if v is not None})
+            return True
+        except Exception as e:
+            print(f"  ⚠ snapshot restore failed: {e}")
+            return False
 
     def submit_feedback(self, fb: str):
         self.state["rework_feedback"] = fb
