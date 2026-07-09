@@ -1,3 +1,8 @@
 output/
 __pycache__/
 *.pyc
+input/session_snapshot.json
+input/*_final.xlsx
+input/BOM_curated.xlsx
+input/system_reference.xlsx
+input/draft_connectivity.xlsx
