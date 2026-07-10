@@ -338,12 +338,18 @@ if ss.step == 1:
         docs_exist = os.path.exists(docs.get("docx", "")) and             os.path.exists(docs.get("pdf", ""))
         with st.container(border=True):
             st.subheader("⏮ Previous session found")
+            n_diag = len(snap.get("diagrams") or {})
+            n_desc = len(snap.get("descriptions") or {})
             st.write(f"Saved: **{snap.get('saved_at', '?')}** · status: "
-                     f"**{snap.get('status', '?')}** · cycle "
-                     f"#{snap.get('cycle_count', 0)} · "
-                     f"{len(snap.get('descriptions') or {})} module "
-                     f"descriptions on record"
+                     f"**{snap.get('status', '?')}** · "
+                     f"{n_diag} diagram(s) and {n_desc} description(s) "
+                     "already completed"
                      + (" · **manual generated** ✔" if docs_exist else ""))
+            if not docs_exist and (n_diag or n_desc):
+                st.info("The previous run was interrupted (e.g. system "
+                        "sleep). Resuming will KEEP the completed work — "
+                        "'Run Pipeline' finishes only the remaining steps "
+                        "(text generation, SME review, document assembly).")
             if docs_exist:
                 d1, d2 = st.columns(2)
                 with d1:
@@ -471,6 +477,20 @@ if ss.step == 1:
             ss.audit = []
             _audit(f"Analyzed {len(uploads)} file(s) → {len(df_all)} connections, "
                    f"{df_all['Subsystem_Name'].nunique()} sub-modules")
+            # traceability: do these uploads match previously curated data?
+            fin = "input/draft_connectivity_final.xlsx"
+            if os.path.exists(fin) and os.path.exists("input/bom_worksheet_final.xlsx"):
+                try:
+                    prev = pd.read_excel(fin, dtype=str).fillna("")
+                    key = ["Subsystem_Name", "Component_ID", "Source_Pin",
+                           "Target_ID", "Target_Pin"]
+                    prev_keys = set(map(tuple, prev[key].values.tolist()))
+                    new_keys = set(map(tuple, df_all[key].values.tolist()))
+                    overlap = (len(prev_keys & new_keys) / max(len(prev_keys), 1))
+                    if overlap >= 0.8:
+                        ss.offer_continue = round(overlap * 100)
+                except Exception:
+                    pass
             ss.step = 2
             st.rerun()
         else:
@@ -481,6 +501,29 @@ if ss.step == 1:
 elif ss.step == 2:
     _back_button(1)
     st.header("Step 2 · Review Extracted Connections")
+    if ss.get("offer_continue"):
+        with st.container(border=True):
+            st.subheader("♻ Pre-processed files found for this data")
+            st.write(f"The uploaded connection data matches the previously "
+                     f"curated files in input/ ({ss.offer_continue}% overlap). "
+                     "You can continue with that curation (skips Steps 2-3, "
+                     "keeps your edited connections, Item_Types and part "
+                     "data) or restart the pre-processing from scratch.")
+            k1, k2 = st.columns(2)
+            with k1:
+                if st.button("Continue with curated data →", type="primary",
+                             width="stretch"):
+                    ss.df_conn = pd.read_excel(
+                        "input/draft_connectivity_final.xlsx", dtype=str).fillna("")
+                    ss.inventory = pd.read_excel(
+                        "input/bom_worksheet_final.xlsx", dtype=str).fillna("")
+                    ss.offer_continue = None
+                    _audit("Continued with previously curated data")
+                    _finalize_bom(ss.inventory)
+            with k2:
+                if st.button("Restart pre-processing", width="stretch"):
+                    ss.offer_continue = None
+                    st.rerun()
     for n in ss.get("notes", []):
         st.write(n)
     st.write(f"**{len(ss.df_conn)} connections** across "
@@ -945,7 +988,9 @@ elif ss.step == 5:
             if st.button("↻ Full Regenerate (entire pipeline)", width="stretch"):
                 sv.state["status"] = "generating"
                 sv.progress_callback = None
-                t = threading.Thread(target=sv.run_generation_cycle, daemon=True)
+                t = threading.Thread(
+                    target=lambda: sv.run_generation_cycle(fresh=True),
+                    daemon=True)
                 t.start()
                 ss.pipe_thread = t
                 st.rerun()

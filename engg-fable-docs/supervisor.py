@@ -208,7 +208,11 @@ class SupervisorAgent:
                 if "System_Name" in df.columns and not df.empty else "System")
 
     # ── full pipeline ─────────────────────────────────────────────────────
-    def run_generation_cycle(self) -> dict:
+    def run_generation_cycle(self, fresh: bool = False) -> dict:
+        if fresh:
+            for k in ("diagrams", "diagram_reviews", "descriptions",
+                      "sme_reviews", "research_cache"):
+                self.state[k] = {}
         self.state["status"] = "generating"
         self.state["cycle_count"] += 1
         feedback = self.state["rework_feedback"]
@@ -252,6 +256,7 @@ class SupervisorAgent:
                 ex.submit(ComponentResearchAgent.run, str(r["Make"]), str(r["Model"]), feedback):
                     f"{r['Make']}_{r['Model']}"
                 for _, r in unique_parts.iterrows()
+                if f"{r['Make']}_{r['Model']}" not in self.state["research_cache"]
             }
             for f in concurrent.futures.as_completed(futures):
                 k = futures[f]
@@ -268,11 +273,19 @@ class SupervisorAgent:
                        f"{self.profile['diagram_workers']} workers, SVG verification on")
         with concurrent.futures.ThreadPoolExecutor(
                 max_workers=self.profile["diagram_workers"]) as ex:
+            import os as _os
+            done = [s for s in subs
+                    if self.state["diagrams"].get(s)
+                    and _os.path.exists(self.state["diagrams"][s])
+                    and self.state["diagram_reviews"].get(s, {}).get("status") == "pass"]
+            if done:
+                self._progress("Stage 2a",
+                               f"skipping {len(done)} already-verified diagram(s) from the previous run")
             diag_f = {
                 ex.submit(self._diagram_with_review, s,
                           df_conn[df_conn["Subsystem_Name"] == s], feedback,
                           False): s          # report_progress=False: worker thread
-                for s in subs
+                for s in subs if s not in done
             }
             for f in concurrent.futures.as_completed(diag_f):
                 s = diag_f[f]
@@ -298,6 +311,7 @@ class SupervisorAgent:
                 self.state["diagrams"][f"System_Overview_Sheet{i}"] = p
         except Exception as e:
             print(f"  ⚠ System diagram failed: {e}")
+        self.save_snapshot()   # diagrams survive a sleep/crash mid-run
 
         # ── Stage 2b: descriptions + SME review (sequential) ──
         self._progress("Stage 2b: Writing subsystem descriptions",
@@ -305,11 +319,17 @@ class SupervisorAgent:
         prior_context = ""
         for s in subs:
             self._checkpoint()
+            if self.state["descriptions"].get(s):
+                self._progress("Stage 2b", f"{s}: already done — skipping")
+                prior_context += (f"- {s.replace('_', ' ')}: "
+                                  f"{self.state['descriptions'][s].get('overview', '')}\n")
+                continue
             self._progress("Stage 2b", s)
             d, review = self._description_with_review(
                 s, df_conn[df_conn["Subsystem_Name"] == s], prior_context, feedback)
             self.state["descriptions"][s] = d
             self.state["sme_reviews"][s] = review
+            self.save_snapshot()   # each finished description survives
             mark = "✓" if review["status"] == "pass" else "⚠"
             self._progress("SME Review", f"{s}: {mark} {review.get('detail', '')}")
             prior_context += f"- {s.replace('_', ' ')}: {d.get('overview', '')}\n"
@@ -396,7 +416,7 @@ class SupervisorAgent:
         import json, os
         from datetime import datetime
         snap = {"saved_at": datetime.now().isoformat(timespec="seconds")}
-        for k in ("descriptions", "system_description", "diagrams",
+        for k in ("research_cache", "descriptions", "system_description", "diagrams",
                   "diagram_reviews", "sme_reviews", "docs", "cycle_count",
                   "expectations", "bus_mode", "diagram_style_overrides",
                   "doc_title", "status", "reference_context"):
