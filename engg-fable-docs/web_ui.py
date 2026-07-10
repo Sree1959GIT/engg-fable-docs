@@ -93,6 +93,38 @@ def _is_question(text: str) -> bool:
         "tell", "explain", "describe", "does", "is", "are", "can"}
 
 
+def _extract_title(text: str):
+    """'name the title as X' / 'title the document \"X\"' → X, else None."""
+    if not re.search(r"\b(title|rename|name)\b", text, re.IGNORECASE):
+        return None
+    m = re.search(r'["\u201c]([^"\u201d]{3,80})["\u201d]', text)
+    if m:
+        return m.group(1).strip()
+    m = re.search(r"(?:title|document|name)\s+(?:as|to|:)\s+(.{3,80})$",
+                  text, re.IGNORECASE)
+    if not m:
+        m = re.search(r"(?:title\s+(?:as|to|:)?|name\s+the\s+title\s+(?:as|to)?)\s+(.+)$",
+                      text, re.IGNORECASE)
+    if m:
+        t = m.group(1).strip().strip('".')
+        return t if 3 <= len(t) <= 80 else None
+    return None
+
+
+def _apply_title(sv, new_title: str, rebuild_docs: bool) -> str:
+    sv.state["doc_title"] = new_title
+    ss.doc_title = new_title
+    _audit(f"Document title set to '{new_title}'")
+    if rebuild_docs and sv.state.get("descriptions"):
+        from agents import DocumentationAgent
+        sv.state["docs"] = DocumentationAgent.run(sv.state)
+        sv.save_snapshot()
+        return (f"✅ Document title set to **{new_title}** and the "
+                "documents were rebuilt — download below to check.")
+    return (f"✅ Document title set to **{new_title}** — it will appear on "
+            "the cover page and footers when the manual is generated.")
+
+
 def _sme_chat_panel(phase: str, suggestions_key: str, chat_key: str,
                     run_review, apply_action):
     """Shared SME-review chat: 'Run SME Review' produces numbered
@@ -252,7 +284,9 @@ def _parse_targets(text: str, module_names: list) -> list:
         targets.append("System Overview")
     if any(p in low for p in (" all modules", " every module",
                               " all sub-modules", " all submodules",
-                              " entire manual", " whole manual", " everything")):
+                              " entire manual", " whole manual", " everything",
+                              " all drawings", " all diagrams", " all sheets",
+                              " all the drawings", " all the diagrams")):
         return list(module_names) + (["System Overview"]
                                      if "System Overview" not in targets else [])
     for m in module_names:
@@ -641,7 +675,10 @@ elif ss.step == 4:
     note = st.chat_input("Ask a question or give an instruction…")
     if note:
         ss.setup_chat.append({"role": "user", "content": note})
-        if _is_question(note):
+        new_title = _extract_title(note)
+        if new_title:
+            reply = _apply_title(sv, new_title, rebuild_docs=False)
+        elif _is_question(note):
             reply = answer_data_question(note, ss.df_conn, ss.get("inventory"),
                                          extra_context=sv.state.get("expectations", ""))
         else:
@@ -847,6 +884,12 @@ elif ss.step == 5:
                 ss.review_chat.append({"role": "assistant",
                                        "content": "Cancelled — no changes made."})
                 ss.pending_action = None
+                st.rerun()
+
+            elif _extract_title(user_msg):
+                reply = _apply_title(sv, _extract_title(user_msg),
+                                     rebuild_docs=True)
+                ss.review_chat.append({"role": "assistant", "content": reply})
                 st.rerun()
 
             else:

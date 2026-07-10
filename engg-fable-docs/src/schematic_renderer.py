@@ -1082,7 +1082,7 @@ def render_block_bus(subsystem: str, connections, registry: Dict[str, dict],
     tb_y = sheet_h - title_h - 8
     sh.rect(tb_x, tb_y, tb_w, 26, width=2)
     sh.text(tb_x + tb_w / 2, tb_y + 13,
-            subsystem.replace("_", " ") + " — Block Wiring Diagram (bus)",
+            subsystem.replace("_", " ") + " — Block Wiring Diagram",
             size=13, bold=True, anchor="mm")
     from datetime import date as _d
     cells = [f"Doc: {config.DOC_NUMBER}", f"Rev: {config.DOC_VERSION}",

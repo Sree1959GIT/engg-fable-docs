@@ -105,7 +105,14 @@ def ask_llm(prompt: str, system: str = "", max_tokens: int = MAX_TOKENS_DESCRIPT
                 resp = requests.post(LLM_CHAT_URL, json=payload,
                                      timeout=base_timeout * attempt)
             resp.raise_for_status()
-            content = resp.json()["choices"][0]["message"]["content"].strip()
+            content = resp.json()["choices"][0]["message"]["content"]
+            # chat-template control tokens must never reach the user
+            # (Gemma/ChatML models sometimes emit them verbatim)
+            for tok in ("<|im_end|>", "<|im_start|>", "<end_of_turn>",
+                        "<start_of_turn>", "<eos>", "<bos>", "</s>",
+                        "<|endoftext|>"):
+                content = content.replace(tok, "")
+            content = content.strip()
             if content:
                 return content
             print(f"  ⚠ LLM returned empty response (attempt {attempt}/{retries})")
